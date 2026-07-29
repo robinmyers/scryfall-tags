@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T006 · Implement health check endpoint**
+**T007 · Smoke tests confirming project setup**
 
 ## Commands
 

@@ -15,7 +15,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 - [x] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S *(created private GitHub remote `robinmyers/scryfall-tags` since Actions needed one; added `pytest` + one placeholder smoke test ahead of T007 so the "test" stage has something real to run; merged via an actual GitHub PR — the local-merge stand-in from T001/T002 ends here. Follow-up: branch protection requiring the `ci` check now enforces this on GitHub — see note below.)*
 - [-] T004 · Create local deploy script triggered by git hook — S *(deferred — no deployment target for this local-only CLI spike per DESIGN.md; nothing to trigger a deploy script into)*
 - [-] T005 · Set up database and run initial migration — M *(deferred — no database per DESIGN.md; confirmed n/a, not silently skipped)*
-- [ ] T006 · Implement health check endpoint — S
+- [-] T006 · Implement health check endpoint — S *(deferred — no HTTP server/hosting in this CLI-only spike per DESIGN.md; nothing for an endpoint to attach to)*
 - [ ] T007 · Smoke tests confirming project setup — S
 
 ## Milestone 2: Scryfall Card Fetch
