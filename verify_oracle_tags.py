@@ -14,9 +14,10 @@ Usage:
     python verify_oracle_tags.py
 """
 
-import time
 import csv
 import random
+import time
+
 import requests
 
 SCRYFALL_SEARCH = "https://api.scryfall.com/cards/search"
@@ -34,9 +35,9 @@ CANDIDATES = {
     "Removal": ["removal"],
     "Sweeper": ["sweeper"],  # confirmed — "board-wipe"/"boardwipe" were wrong
     "Discard": ["discard"],  # NOTE: "discard-outlet" is a real tag but its definition
-                              # ("ways to discard your own cards") matches our
-                              # Discard Outlet mechanic, not this one — see Discard
-                              # Outlet entry below. Don't map it here.
+    # ("ways to discard your own cards") matches our
+    # Discard Outlet mechanic, not this one — see Discard
+    # Outlet entry below. Don't map it here.
     "Ramp": ["ramp"],
     "Mana Dork": ["mana-dork"],  # confirmed correct
     "Counter": ["counterspell"],
@@ -44,51 +45,80 @@ CANDIDATES = {
     "Bounce": ["bounce"],
     "Recursion": ["recursion"],
     "Reanimate": ["reanimate"],  # confirmed — plural family "reanimate-<type>" also
-                                  # exists (e.g. reanimate-dragon); worth pulling the
-                                  # full tag list to enumerate all reanimate-* tags
-                                  # rather than guessing types one by one
+    # exists (e.g. reanimate-dragon); worth pulling the
+    # full tag list to enumerate all reanimate-* tags
+    # rather than guessing types one by one
     "Tokens": ["repeatable-token-generator"],  # confirmed as the most important one;
-                                                # no single tag covers all token makers —
-                                                # likely needs a union of several tags
-                                                # plus text-pattern inference as a fallback
+    # no single tag covers all token makers —
+    # likely needs a union of several tags
+    # plus text-pattern inference as a fallback
     "Looting": ["loot"],  # confirmed — "looting" was wrong
     "Rummage": ["rummage"],
     "Hand Disruption": ["hand-disruption"],  # confirmed
     "Card Advantage": ["card-advantage"],  # confirmed
     "Drain": ["drain-life"],  # confirmed — was "drain"
-    "Graveyard Hate": ["hate-graveyard"],  # confirmed — order flipped from "graveyard-hate"
+    "Graveyard Hate": [
+        "hate-graveyard"
+    ],  # confirmed — order flipped from "graveyard-hate"
     "Sac Outlet": ["sacrifice-outlet"],  # confirmed
     "Evasion": ["evasion"],  # confirmed
     "Self-mill": ["mill-self"],  # confirmed — order flipped from "self-mill"
     "Mill": ["mill-opponent"],  # confirmed — was just "mill"
-    "+1/+1 Counters": ["pp-counters-matter", "gains-pp-counters", "gives-pp-counters"],  # confirmed, 3 tags
+    "+1/+1 Counters": [
+        "pp-counters-matter",
+        "gains-pp-counters",
+        "gives-pp-counters",
+    ],  # confirmed, 3 tags
     "Fixing": ["mana-fix"],  # confirmed — was "mana-fixing"
     "Energy": ["energy-generator"],  # confirmed — was "energy"
     "Burn": ["burn"],  # confirmed
-    "Graveyard Matters": ["cards-in-graveyard-matter", "card-types-in-graveyard-matter"],  # confirmed — replaces the narrower "Delirium" entry; no dedicated Delirium tag exists, these catch Delirium/Threshold/Undergrowth-style effects generally
+    "Graveyard Matters": [
+        "cards-in-graveyard-matter",
+        "card-types-in-graveyard-matter",
+    ],  # confirmed — replaces the narrower "Delirium" entry; no dedicated Delirium tag exists, these catch Delirium/Threshold/Undergrowth-style effects generally
     "Lifegain": ["lifegain"],  # confirmed
-    "Pump": ["firebreathing", "power-boost-to-all", "shade-pump"],  # confirmed, 3 tags —
-                                     # firebreathing = +X/+0 until EOT, power-boost-to-all
-                                     # = anthem-style boost to all creatures, shade-pump =
-                                     # classic +X/+X until EOT. Likely not exhaustive —
-                                     # revisit if more pump variants surface during spot-checking
+    "Pump": [
+        "firebreathing",
+        "power-boost-to-all",
+        "shade-pump",
+    ],  # confirmed, 3 tags —
+    # firebreathing = +X/+0 until EOT, power-boost-to-all
+    # = anthem-style boost to all creatures, shade-pump =
+    # classic +X/+X until EOT. Likely not exhaustive —
+    # revisit if more pump variants surface during spot-checking
     "Combat Trick": ["combat-trick"],
-    "Cost Reduction": ["cost-reducer-self", "cost-reducer-sorcery", "cost-reducer-vehicle", "cost-reducer-saga"],  # confirmed pattern "cost-reducer-<type>" — full type list still needs enumerating
+    "Cost Reduction": [
+        "cost-reducer-self",
+        "cost-reducer-sorcery",
+        "cost-reducer-vehicle",
+        "cost-reducer-saga",
+    ],  # confirmed pattern "cost-reducer-<type>" — full type list still needs enumerating
     "Tax": ["tax"],  # confirmed — drop "cost-increaser"
-    "Protection": ["protection", "gives-protection", "gives-hexproof", "gives-indestructible"],  # confirmed, 4 tags
+    "Protection": [
+        "protection",
+        "gives-protection",
+        "gives-hexproof",
+        "gives-indestructible",
+    ],  # confirmed, 4 tags
     "Copy": ["copy"],  # confirmed
     "Tap": ["tapper"],  # confirmed — was "tap-effect"
     "Stun": ["freeze-creature"],  # confirmed — completely different name than guessed
-    "Discard Outlet": ["discard-outlet"],  # confirmed — "ways to discard your own cards"
+    "Discard Outlet": [
+        "discard-outlet"
+    ],  # confirmed — "ways to discard your own cards"
     "Unblockable": ["unblockable", "gives-unblockable"],  # confirmed, 2 tags
     "Curiosity": ["curiosity", "curiosity-like"],
     "Exchange": ["exchange-control"],  # confirmed — was "exchange"
     "Modal": ["modal"],  # confirmed
     "Landcycling": ["tutor-land"],  # confirmed by experience, but NOTE: this reads
-                                     # broader than the Landcycling keyword specifically
-                                     # (any land-tutoring effect, not just Landcycling) —
-                                     # worth checking it doesn't overtag non-Landcycling cards
-    "-1/-1 Counters": ["mm-counters-matter", "gains-mm-counters", "gives-mm-counters"],  # confirmed, 3 tags
+    # broader than the Landcycling keyword specifically
+    # (any land-tutoring effect, not just Landcycling) —
+    # worth checking it doesn't overtag non-Landcycling cards
+    "-1/-1 Counters": [
+        "mm-counters-matter",
+        "gains-mm-counters",
+        "gives-mm-counters",
+    ],  # confirmed, 3 tags
 }
 
 
@@ -101,7 +131,10 @@ def check_tag(slug: str) -> dict:
             resp = requests.get(
                 SCRYFALL_SEARCH,
                 params={"q": f"otag:{slug}", "unique": "cards"},
-                headers={"User-Agent": "CubeWorkshopTaxonomyCheck/1.0", "Accept": "*/*"},
+                headers={
+                    "User-Agent": "CubeWorkshopTaxonomyCheck/1.0",
+                    "Accept": "*/*",
+                },
                 timeout=10,
             )
         except requests.RequestException as exc:
@@ -136,7 +169,7 @@ def check_tag(slug: str) -> dict:
 
 def _sleep_backoff(attempt: int) -> None:
     """Exponential backoff with jitter, capped at BACKOFF_MAX_SECONDS."""
-    delay = min(BACKOFF_BASE_SECONDS * (2 ** attempt), BACKOFF_MAX_SECONDS)
+    delay = min(BACKOFF_BASE_SECONDS * (2**attempt), BACKOFF_MAX_SECONDS)
     delay += random.uniform(0, delay * 0.25)
     time.sleep(delay)
 
@@ -146,14 +179,22 @@ def main():
     for mechanic, slugs in CANDIDATES.items():
         for slug in slugs:
             result = check_tag(slug)
-            rows.append({
-                "mechanic": mechanic,
-                "slug": slug,
-                "exists": result.get("exists"),
-                "count": result.get("count"),
-            })
-            status = "OK" if result.get("exists") else ("ERR" if result.get("exists") is None else "MISS")
-            print(f"[{status}] {mechanic:20s} otag:{slug:35s} count={result.get('count')}")
+            rows.append(
+                {
+                    "mechanic": mechanic,
+                    "slug": slug,
+                    "exists": result.get("exists"),
+                    "count": result.get("count"),
+                }
+            )
+            status = (
+                "OK"
+                if result.get("exists")
+                else ("ERR" if result.get("exists") is None else "MISS")
+            )
+            print(
+                f"[{status}] {mechanic:20s} otag:{slug:35s} count={result.get('count')}"
+            )
             time.sleep(REQUEST_DELAY_SECONDS)
 
     with open("oracle_tag_verification.csv", "w", newline="") as f:
