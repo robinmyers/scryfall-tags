@@ -16,13 +16,14 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T002 · Configure linter, formatter, and type checker**
+**T003 · Set up GitHub Actions CI pipeline**
 
 ## Commands
 
 - Install: `uv sync`
 - Run: `uv run python main.py` (entrypoint will evolve as T008+ build out the CLI)
 - Lint: `uv run ruff check .`
+- Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
 - Test: none — per DESIGN.md, manual card-by-card verification is the test method for this spike; no automated test suite is planned
 - Migrate: n/a — no database
