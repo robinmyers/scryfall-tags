@@ -1,9 +1,11 @@
 [project]
 name = "scryfall-tags"
 version = "0.1.0"
-description = "Add your description here"
+description = "Cube Classification Pipeline spike — rule-based and LLM-assisted Mechanics/Archetype tagging for Magic cards"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "requests>=2.34.2",
+    "python-dotenv>=1.0.1",
+    "anthropic>=0.40.0",
 ]
