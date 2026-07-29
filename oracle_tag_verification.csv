@@ -1,0 +1,61 @@
+mechanic,slug,exists,count
+Draw,draw,True,4178
+Cantrip,cantrip,True,624
+Impulsive Draw,impulsive-draw,True,264
+Removal,removal,True,6386
+Sweeper,sweeper,True,932
+Discard,discard,True,571
+Ramp,ramp,True,2260
+Mana Dork,mana-dork,True,436
+Counter,counterspell,True,544
+Tutor,tutor,True,1141
+Bounce,bounce,True,909
+Recursion,recursion,True,2236
+Reanimate,reanimate,True,1035
+Tokens,repeatable-token-generator,True,1803
+Looting,loot,True,410
+Rummage,rummage,True,274
+Hand Disruption,hand-disruption,True,693
+Card Advantage,card-advantage,True,6284
+Drain,drain-life,True,398
+Graveyard Hate,hate-graveyard,True,419
+Sac Outlet,sacrifice-outlet,True,1445
+Evasion,evasion,True,5224
+Self-mill,mill-self,True,1004
+Mill,mill-opponent,True,453
++1/+1 Counters,pp-counters-matter,True,448
++1/+1 Counters,gains-pp-counters,True,1809
++1/+1 Counters,gives-pp-counters,True,1613
+Fixing,mana-fix,True,52
+Energy,energy-generator,True,138
+Burn,burn,True,3002
+Graveyard Matters,cards-in-graveyard-matter,True,579
+Graveyard Matters,card-types-in-graveyard-matter,True,100
+Lifegain,lifegain,True,2570
+Pump,firebreathing,True,288
+Pump,power-boost-to-all,True,1203
+Pump,shade-pump,True,298
+Combat Trick,combat-trick,True,1017
+Cost Reduction,cost-reducer-self,True,563
+Cost Reduction,cost-reducer-sorcery,True,41
+Cost Reduction,cost-reducer-vehicle,True,1
+Cost Reduction,cost-reducer-saga,True,2
+Tax,tax,True,446
+Protection,protection,True,1296
+Protection,gives-protection,True,119
+Protection,gives-hexproof,True,151
+Protection,gives-indestructible,True,271
+Copy,copy,True,1009
+Tap,tapper,True,711
+Stun,freeze-creature,True,180
+Discard Outlet,discard-outlet,True,1303
+Unblockable,unblockable,True,196
+Unblockable,gives-unblockable,True,179
+Curiosity,curiosity,True,237
+Curiosity,curiosity-like,True,336
+Exchange,exchange-control,True,41
+Modal,modal,True,783
+Landcycling,tutor-land,True,577
+-1/-1 Counters,mm-counters-matter,True,59
+-1/-1 Counters,gains-mm-counters,True,75
+-1/-1 Counters,gives-mm-counters,True,227

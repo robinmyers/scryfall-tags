@@ -1,0 +1,78 @@
+# TASKS
+
+Status key: `[ ]` not started · `[~]` in progress · `[x]` complete · `[-]` deferred
+
+## Milestone 1: Project Foundation
+
+Goal: Working skeleton with CI pipeline running and all checks passing
+
+> Note: `pyproject.toml`, `uv.lock`, and a `main.py` stub already exist in this repo. T001 still needs to confirm/extend this scaffolding rather than starting from nothing. T005 is n/a — DESIGN.md specifies no database for this spike; confirm no migration step is needed rather than silently skipping it.
+
+- [ ] T001 · Scaffold project structure and install dependencies — S
+- [ ] T002 · Configure linter, formatter, and type checker — S
+- [ ] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S
+- [ ] T004 · Create local deploy script triggered by git hook — S
+- [ ] T005 · Set up database and run initial migration — M *(n/a — no database per DESIGN.md; confirm and close out rather than skip silently)*
+- [ ] T006 · Implement health check endpoint — S
+- [ ] T007 · Smoke tests confirming project setup — S
+
+## Milestone 2: Scryfall Card Fetch
+
+Goal: Given a single card identifier, reliably fetch its Scryfall data. Depends on Milestone 1.
+
+- [ ] T008 · CLI entrypoint accepts a single card identifier — S
+- [ ] T009 · Scryfall client: fetch card by identifier (oracle text, type line, oracle tags) — M
+  - Acceptance criteria: reuses the retry/backoff-with-jitter pattern already built in `verify_oracle_tags.py` for rate limits
+  - Validation note: manual smoke test against a real card identifier (network call to api.scryfall.com — not automatable in CI)
+- [ ] T010 · Handle not-found / ambiguous card identifier — S · depends on T009
+  - Acceptance criteria: use Scryfall's exact-name lookup only; fail clearly with a readable error if the card isn't found — no silent fuzzy-match fallback
+
+## Milestone 3: Rule/Tag Pass (Mechanics)
+
+Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milestone 2.
+
+- [ ] T011 · Parse `mechanics-archetypes-taxonomy.md`'s mapping table into a tag→mechanic lookup — M
+  - Acceptance criteria: output includes all currently-confirmed mappings (e.g. draw, cantrip, ramp) as a fixture/regression check against the current taxonomy doc
+- [ ] T012 · Match a card's oracle tags against the lookup → Mechanics suggestions + source tag(s) — S · depends on T009, T011
+- [ ] T013 · Print Mechanics suggestions to terminal — S · depends on T012
+
+## Milestone 4: EDHREC Weak Signal
+
+Goal: Add EDHREC theme/synergy data as a best-effort weak signal. Depends on Milestone 3.
+
+- [ ] T014 · EDHREC client: fetch theme/synergy data for a card — M
+  - Acceptance criteria: DESIGN.md leaves the approach open (`pyedhrec`, `mightstone`, or direct `json.edhrec.com` calls) — record which was chosen and why
+- [ ] T015 · Graceful degradation on EDHREC failure — S · depends on T014
+  - Acceptance criteria: on failure, skip the weak-signal input and proceed with Mechanics + oracle text only, rather than failing the whole run
+  - Validation note: simulate/force a failure (e.g. bad URL or mocked timeout) and confirm the run still completes end-to-end
+
+## Milestone 5: LLM Archetype Pass
+
+Goal: Produce Archetype suggestions from the assembled context. Depends on Milestone 3 and Milestone 4.
+
+- [ ] T016 · Assemble the archetype-classification prompt (oracle text + mechanic tags/confidence + EDHREC signal + archetype list + mechanic-affinity heuristics) — M
+  - Acceptance criteria: define the required input sections and their order explicitly — two implementations could otherwise structure this very differently
+- [ ] T017 · Call the LLM and parse the response into suggested Archetypes — M · depends on T016
+  - Acceptance criteria: define the expected response shape (structured list vs. free text) and how parse failures are handled
+  - Validation note: smoke test end-to-end against a real card
+- [ ] T018 · Print Archetype suggestions to terminal — S · depends on T017
+
+## Milestone 6: Run Logging
+
+Goal: Record every run for pattern review across cards. Depends on Milestone 3 and Milestone 5.
+
+- [ ] T019 · Append each run's inputs + suggestions to a local log file — M
+  - Acceptance criteria: pick CSV or JSONL (DESIGN.md leaves this open) and document the schema
+  - Validation note: run twice, confirm the log appends rather than overwrites
+- [ ] T020 · End-to-end manual verification across a sample of cards — S · depends on all prior tasks
+  - Acceptance criteria: maps directly to PRD Success Criteria — suggestions compared against hand-tagging across a meaningful sample; misses traced to fixable causes (tag mapping gap, prompt issue) where possible
+
+## Deferred
+
+Derived from PRD Non-Goals and DESIGN.md out-of-scope:
+
+- [-] Any UI, database, or persistence layer beyond simple local output/logging
+- [-] Batch or bulk processing — one card at a time only
+- [-] Integration into the actual Cube Workshop app — that's an output of the spike (a proposed PRD/DESIGN update), not something built during it
+- [-] Fully resolving all open tag ambiguities (e.g. Discard's still-unconfirmed tag, Tokens' text-fallback logic) before the spike starts
+- [-] Any accuracy/confidence scoring system beyond passing through what the rule pass and LLM already produce
