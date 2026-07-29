@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T007 · Smoke tests confirming project setup**
+**T008 · CLI entrypoint accepts a single card identifier** (Milestone 1 complete; first task of Milestone 2)
 
 ## Commands
 
@@ -25,7 +25,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — currently one placeholder smoke test; DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — two smoke tests (entrypoint runs; core dependencies import cleanly); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 
