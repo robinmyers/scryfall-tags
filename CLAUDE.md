@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T003 · Set up GitHub Actions CI pipeline**
+**T004 · Create local deploy script triggered by git hook**
 
 ## Commands
 
@@ -25,7 +25,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: none — per DESIGN.md, manual card-by-card verification is the test method for this spike; no automated test suite is planned
+- Test: `uv run pytest` — currently one placeholder smoke test; DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 
@@ -87,7 +87,7 @@ Before marking any task complete, run in order:
 
 1. Lint command — must return no errors
 2. Type check command — must return no errors
-3. Test command — no automated suite exists for this spike; manually run the affected pipeline stage against a real card and compare output to hand-tagging judgment
+3. Test command — `uv run pytest` must pass; for pipeline stages, also manually run the affected stage against a real card and compare output to hand-tagging judgment (classification-suggestion correctness isn't covered by the automated suite)
 4. If a new pipeline stage was added (Scryfall fetch, EDHREC fetch, LLM call): run it against a real card identifier as a smoke test
 5. Manually verify acceptance criteria in TASKS.md
 6. DESIGN.md decision log updated if a significant choice was made
