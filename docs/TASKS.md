@@ -8,7 +8,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 
 > Note: `pyproject.toml`, `uv.lock`, and a `main.py` stub already exist in this repo. T001 still needs to confirm/extend this scaffolding rather than starting from nothing. T005 is n/a — DESIGN.md specifies no database for this spike; confirm no migration step is needed rather than silently skipping it.
 
-- [ ] T001 · Scaffold project structure and install dependencies — S
+- [x] T001 · Scaffold project structure and install dependencies — S *(merged via local `git merge feature/T001-scaffold` — no remote yet, so this stood in for a PR)*
 - [ ] T002 · Configure linter, formatter, and type checker — S
 - [ ] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S
 - [ ] T004 · Create local deploy script triggered by git hook — S

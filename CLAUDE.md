@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T001 · Scaffold project structure and install dependencies**
+**T002 · Configure linter, formatter, and type checker**
 
 ## Commands
 
