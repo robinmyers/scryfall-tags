@@ -2,7 +2,7 @@
 
 Status key: `[ ]` not started · `[~]` in progress · `[x]` complete · `[-]` deferred
 
-## Milestone 1: Project Foundation
+## Milestone 1: Project Foundation — COMPLETE
 
 Goal: Working skeleton with CI pipeline running and all checks passing
 
@@ -16,7 +16,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 - [-] T004 · Create local deploy script triggered by git hook — S *(deferred — no deployment target for this local-only CLI spike per DESIGN.md; nothing to trigger a deploy script into)*
 - [-] T005 · Set up database and run initial migration — M *(deferred — no database per DESIGN.md; confirmed n/a, not silently skipped)*
 - [-] T006 · Implement health check endpoint — S *(deferred — no HTTP server/hosting in this CLI-only spike per DESIGN.md; nothing for an endpoint to attach to)*
-- [ ] T007 · Smoke tests confirming project setup — S
+- [x] T007 · Smoke tests confirming project setup — S *(added `test_dependencies_importable` alongside the existing entrypoint test — confirms `requests`/`anthropic`/`dotenv` installed correctly; no `.env`-loading test since no code calls it yet)*
 
 ## Milestone 2: Scryfall Card Fetch
 
