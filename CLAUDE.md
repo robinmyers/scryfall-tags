@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T004 · Create local deploy script triggered by git hook**
+**T005 · Set up database and run initial migration** *(likely n/a — no database per DESIGN.md; needs an explicit decision like T004 got, not yet resolved)*
 
 ## Commands
 
@@ -35,7 +35,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - One branch per task: `feature/T001-scaffold`, `feature/T002-tooling`, etc.
 - PR required to merge — use it as a checkpoint even on a solo project
 - Branch from `main`, merge back to `main` via PR
-- CI must pass before merging
+- CI must pass before merging — GitHub-enforced via branch protection on `main` (required status check: `ci`), not just a stated convention. Repo is public (required to enable branch protection on the free plan)
 
 ## Behavioral Principles
 
