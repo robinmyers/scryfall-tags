@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T005 · Set up database and run initial migration** *(likely n/a — no database per DESIGN.md; needs an explicit decision like T004 got, not yet resolved)*
+**T006 · Implement health check endpoint**
 
 ## Commands
 

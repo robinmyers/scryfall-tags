@@ -14,7 +14,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 - [x] T002 · Configure linter, formatter, and type checker — S *(ruff for lint+format, mypy non-strict per DESIGN.md tooling; merged via local `git merge feature/T002-tooling`)*
 - [x] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S *(created private GitHub remote `robinmyers/scryfall-tags` since Actions needed one; added `pytest` + one placeholder smoke test ahead of T007 so the "test" stage has something real to run; merged via an actual GitHub PR — the local-merge stand-in from T001/T002 ends here. Follow-up: branch protection requiring the `ci` check now enforces this on GitHub — see note below.)*
 - [-] T004 · Create local deploy script triggered by git hook — S *(deferred — no deployment target for this local-only CLI spike per DESIGN.md; nothing to trigger a deploy script into)*
-- [ ] T005 · Set up database and run initial migration — M *(n/a — no database per DESIGN.md; confirm and close out rather than skip silently)*
+- [-] T005 · Set up database and run initial migration — M *(deferred — no database per DESIGN.md; confirmed n/a, not silently skipped)*
 - [ ] T006 · Implement health check endpoint — S
 - [ ] T007 · Smoke tests confirming project setup — S
 
