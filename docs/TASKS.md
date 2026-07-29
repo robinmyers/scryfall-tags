@@ -10,7 +10,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 
 - [x] T001 · Scaffold project structure and install dependencies — S *(merged via local `git merge feature/T001-scaffold` — no remote yet, so this stood in for a PR)*
 - [x] T002 · Configure linter, formatter, and type checker — S *(ruff for lint+format, mypy non-strict per DESIGN.md tooling; merged via local `git merge feature/T002-tooling`)*
-- [ ] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S
+- [x] T003 · Set up GitHub Actions CI pipeline (lint → type check → test on every PR to main) — S *(created private GitHub remote `robinmyers/scryfall-tags` since Actions needed one; added `pytest` + one placeholder smoke test ahead of T007 so the "test" stage has something real to run; merged via an actual GitHub PR — the local-merge stand-in from T001/T002 ends here)*
 - [ ] T004 · Create local deploy script triggered by git hook — S
 - [ ] T005 · Set up database and run initial migration — M *(n/a — no database per DESIGN.md; confirm and close out rather than skip silently)*
 - [ ] T006 · Implement health check endpoint — S
