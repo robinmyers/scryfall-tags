@@ -36,6 +36,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - PR required to merge — use it as a checkpoint even on a solo project
 - Branch from `main`, merge back to `main` via PR
 - CI must pass before merging — GitHub-enforced via branch protection on `main` (required status check: `ci`), not just a stated convention. Repo is public (required to enable branch protection on the free plan)
+- **Never merge a PR without being asked.** Open it, confirm CI passes, then stop and let the user review — do not run `gh pr merge` unprompted.
 
 ## Behavioral Principles
 
