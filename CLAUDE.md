@@ -16,12 +16,12 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T008 · CLI entrypoint accepts a single card identifier** (Milestone 1 complete; first task of Milestone 2)
+**T009 · Scryfall client: fetch card by identifier**
 
 ## Commands
 
 - Install: `uv sync`
-- Run: `uv run python main.py` (entrypoint will evolve as T008+ build out the CLI)
+- Run: `uv run python main.py "<card name>"` (e.g. `uv run python main.py "Lightning Bolt"`; entrypoint will evolve further as T009+ build out the pipeline)
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`

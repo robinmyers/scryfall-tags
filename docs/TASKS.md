@@ -22,7 +22,7 @@ Goal: Working skeleton with CI pipeline running and all checks passing
 
 Goal: Given a single card identifier, reliably fetch its Scryfall data. Depends on Milestone 1.
 
-- [ ] T008 · CLI entrypoint accepts a single card identifier — S
+- [x] T008 · CLI entrypoint accepts a single card identifier — S *(argparse, one required positional `card` arg; `main(argv=None)` so tests can pass an explicit arg list instead of depending on real `sys.argv`; placeholder output only — T009 replaces it with the actual Scryfall fetch)*
 - [ ] T009 · Scryfall client: fetch card by identifier (oracle text, type line, oracle tags) — M
   - Acceptance criteria: reuses the retry/backoff-with-jitter pattern already built in `verify_oracle_tags.py` for rate limits
   - Validation note: manual smoke test against a real card identifier (network call to api.scryfall.com — not automatable in CI)
