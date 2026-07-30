@@ -33,3 +33,10 @@
 
 ## Testing Approach
 Manual, card-by-card verification is the primary test method — that's the point of the spike. `ruff`/`mypy` catch basic code-quality issues; no automated test suite planned given the throwaway nature of this build.
+
+## Decision Log
+
+### Oracle tags require a local bulk-data cache, not a per-card endpoint
+Scryfall's `/cards/named` endpoint (used to fetch oracle text/type line) does not include a card's oracle tags — there is no per-card tag lookup endpoint. Oracle tags only exist in a separate, tag-centric "Oracle Tags" bulk data file (`/bulk-data`, ~5.8MB gzipped / ~18MB decompressed as of writing, updated roughly daily), where each record lists which cards (by `oracle_id`) it applies to — the inverse of what's needed.
+
+Decision: download and cache that file locally (`.cache/oracle-tags.jsonl`, gitignored, refreshed if older than 24h), and build an in-memory `oracle_id → [tag slugs]` index from it at lookup time. Rejected alternative: querying `otag:<slug> oracleid:<id>` once per known candidate tag (~40-50 tags from the taxonomy doc) — this would mean dozens of sequential rate-limited API calls per single card lookup, working against the "fast enough for interactive one-at-a-time review" requirement, and still wouldn't surface tags outside the known candidate list.
