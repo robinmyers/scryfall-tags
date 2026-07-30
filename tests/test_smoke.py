@@ -2,9 +2,9 @@ from main import main
 
 
 def test_main_runs(capsys):
-    main()
+    main(["Lightning Bolt"])
     captured = capsys.readouterr()
-    assert "scryfall-tags" in captured.out
+    assert "Lightning Bolt" in captured.out
 
 
 def test_dependencies_importable():
