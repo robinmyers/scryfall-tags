@@ -16,16 +16,16 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T009 · Scryfall client: fetch card by identifier**
+**T010 · Handle not-found / ambiguous card identifier**
 
 ## Commands
 
 - Install: `uv sync`
-- Run: `uv run python main.py "<card name>"` (e.g. `uv run python main.py "Lightning Bolt"`; entrypoint will evolve further as T009+ build out the pipeline)
+- Run: `uv run python main.py "<card name>"` (e.g. `uv run python main.py "Lightning Bolt"`; entrypoint will evolve further as T010+ build out the pipeline). First run downloads/caches `.cache/oracle-tags.jsonl` (~18MB, refreshed every 24h)
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — two smoke tests (entrypoint runs; core dependencies import cleanly); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — three smoke/unit tests (entrypoint runs with a mocked Scryfall fetch; core dependencies import cleanly; oracle-tag index builder is unit-tested against a fixture — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 
