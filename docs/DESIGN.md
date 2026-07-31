@@ -40,3 +40,10 @@ Manual, card-by-card verification is the primary test method — that's the poin
 Scryfall's `/cards/named` endpoint (used to fetch oracle text/type line) does not include a card's oracle tags — there is no per-card tag lookup endpoint. Oracle tags only exist in a separate, tag-centric "Oracle Tags" bulk data file (`/bulk-data`, ~5.8MB gzipped / ~18MB decompressed as of writing, updated roughly daily), where each record lists which cards (by `oracle_id`) it applies to — the inverse of what's needed.
 
 Decision: download and cache that file locally (`.cache/oracle-tags.jsonl`, gitignored, refreshed if older than 24h), and build an in-memory `oracle_id → [tag slugs]` index from it at lookup time. Rejected alternative: querying `otag:<slug> oracleid:<id>` once per known candidate tag (~40-50 tags from the taxonomy doc) — this would mean dozens of sequential rate-limited API calls per single card lookup, working against the "fast enough for interactive one-at-a-time review" requirement, and still wouldn't surface tags outside the known candidate list.
+
+## Follow-up Notes for Production Integration
+
+Recommendations to carry into the PRD/DESIGN update that proposes how this pipeline integrates into Cube Workshop's card-add workflow (see PRD Success Criteria) — collected here as they come up during the spike, rather than acted on now.
+
+### Extract the taxonomy mapping out of markdown into a dedicated config format
+`docs/mechanics-archetypes-taxonomy.md`'s Oracle Tag Mapping table is parsed directly by `taxonomy.py` (T011) via markdown-table parsing. That's fine for the spike — DESIGN.md already names the doc as the source of truth, and a regression test (`tests/test_taxonomy.py`) catches parsing breakage. For the production app, consider extracting this mapping into a dedicated structured format (YAML/JSON/TOML): more robust to parse than regexing markdown table rows, at the cost of splitting the source of truth in two (the human-readable doc and a machine config) unless one is generated from the other. Not worth the added machinery for a throwaway spike; worth reconsidering once this is a permanent part of the production app.
