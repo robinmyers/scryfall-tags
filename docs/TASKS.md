@@ -36,15 +36,19 @@ Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milest
 - [x] T011 · Parse `mechanics-archetypes-taxonomy.md`'s mapping table into a tag→mechanic lookup — M *(also resolved Discard's tag along the way — confirmed live as `discard`, 571 cards, matching the opponent-facing definition; updated the taxonomy doc's Oracle Tag Mapping table, confirmed-tags list, and the old "open ambiguity" note. Parser gates on the Confidence column rather than prose-parsing, so `discard-outlet` mentioned inside Discard's old unconfirmed-row text never bled into the Discard mapping. `reanimate-<type>` family enumeration remains a deferred gap — could be resolved later by scanning the T009 oracle-tags cache for the `reanimate-*` prefix.)*
   - Acceptance criteria: output includes all currently-confirmed mappings (e.g. draw, cantrip, ramp) as a fixture/regression check against the current taxonomy doc
 - [x] T012 · Match a card's oracle tags against the lookup → Mechanics suggestions + source tag(s) — S · depends on T009, T011 *(mechanics.py: match_mechanics(). Manual smoke test against real cards found a bigger pattern than expected: Counterspell correctly matched `counterspell`→"Counter (counterspell)", but Cultivate/Rampant Growth (`land-ramp`, not `ramp`), Divination (`pure-draw`, not `draw`), and Lightning Bolt (`burn-any`/`spot-removal`, not `burn`/`removal`) all missed — Scryfall's tagger seems to increasingly apply more specific subtags to exemplar cards rather than the broader "Confirmed" tags this doc verified earlier, and tags don't appear to auto-inherit from child to parent. Worth a broader re-verification pass across the taxonomy at some point — flagging as a finding, not fixing it as part of this task.)*
-- [ ] T013 · Print Mechanics suggestions to terminal — S · depends on T012
+- [ ] T013 · Re-verify taxonomy tag mappings against real cards using Scryfall's tag hierarchy — L · depends on T009, T011, T012
+  - Confirmed via the cached Oracle Tags bulk file: `land-ramp` is a direct child of `ramp`; `spot-removal` a direct child of `removal`; `pure-draw` a direct child of `draw`; `burn-any` a two-level descendant of `burn` (via `burn-player`/`burn-battle`/etc.); and `reanimate`'s children include the entire `reanimate-<type>` family T011 flagged as a deferred gap. One mechanism (hierarchy-aware matching — expand each mechanic's confirmed tag(s) to include all transitive descendants via `parent_ids`/`child_ids`) resolves all of these at once, rather than hand-enumerating every specific subtag.
+  - Acceptance criteria: `mechanics.py`/`taxonomy.py` matching accounts for the tag hierarchy, not just exact-slug matches; re-verify each Mechanic's currently-listed tag(s) against real exemplar cards (hierarchy-aware) and flag any mechanic that still doesn't resolve correctly even accounting for hierarchy
+  - Validation note: manual verification against a meaningful sample of real cards per mechanic (network calls, not automatable in CI) — same style as T009's validation note
+- [ ] T014 · Print Mechanics suggestions to terminal — S · depends on T012, T013
 
 ## Milestone 4: EDHREC Weak Signal
 
 Goal: Add EDHREC theme/synergy data as a best-effort weak signal. Depends on Milestone 3.
 
-- [ ] T014 · EDHREC client: fetch theme/synergy data for a card — M
+- [ ] T015 · EDHREC client: fetch theme/synergy data for a card — M
   - Acceptance criteria: DESIGN.md leaves the approach open (`pyedhrec`, `mightstone`, or direct `json.edhrec.com` calls) — record which was chosen and why
-- [ ] T015 · Graceful degradation on EDHREC failure — S · depends on T014
+- [ ] T016 · Graceful degradation on EDHREC failure — S · depends on T015
   - Acceptance criteria: on failure, skip the weak-signal input and proceed with Mechanics + oracle text only, rather than failing the whole run
   - Validation note: simulate/force a failure (e.g. bad URL or mocked timeout) and confirm the run still completes end-to-end
 
@@ -52,21 +56,21 @@ Goal: Add EDHREC theme/synergy data as a best-effort weak signal. Depends on Mil
 
 Goal: Produce Archetype suggestions from the assembled context. Depends on Milestone 3 and Milestone 4.
 
-- [ ] T016 · Assemble the archetype-classification prompt (oracle text + mechanic tags/confidence + EDHREC signal + archetype list + mechanic-affinity heuristics) — M
+- [ ] T017 · Assemble the archetype-classification prompt (oracle text + mechanic tags/confidence + EDHREC signal + archetype list + mechanic-affinity heuristics) — M
   - Acceptance criteria: define the required input sections and their order explicitly — two implementations could otherwise structure this very differently
-- [ ] T017 · Call the LLM and parse the response into suggested Archetypes — M · depends on T016
+- [ ] T018 · Call the LLM and parse the response into suggested Archetypes — M · depends on T017
   - Acceptance criteria: define the expected response shape (structured list vs. free text) and how parse failures are handled
   - Validation note: smoke test end-to-end against a real card
-- [ ] T018 · Print Archetype suggestions to terminal — S · depends on T017
+- [ ] T019 · Print Archetype suggestions to terminal — S · depends on T018
 
 ## Milestone 6: Run Logging
 
 Goal: Record every run for pattern review across cards. Depends on Milestone 3 and Milestone 5.
 
-- [ ] T019 · Append each run's inputs + suggestions to a local log file — M
+- [ ] T020 · Append each run's inputs + suggestions to a local log file — M
   - Acceptance criteria: pick CSV or JSONL (DESIGN.md leaves this open) and document the schema
   - Validation note: run twice, confirm the log appends rather than overwrites
-- [ ] T020 · End-to-end manual verification across a sample of cards — S · depends on all prior tasks
+- [ ] T021 · End-to-end manual verification across a sample of cards — S · depends on all prior tasks
   - Acceptance criteria: maps directly to PRD Success Criteria — suggestions compared against hand-tagging across a meaningful sample; misses traced to fixable causes (tag mapping gap, prompt issue) where possible
   - When writing the PRD/DESIGN follow-up this task feeds into, check DESIGN.md's "Follow-up Notes for Production Integration" section for recommendations collected during the spike (currently: extracting the taxonomy mapping out of markdown into a dedicated config format)
 

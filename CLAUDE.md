@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T013 · Print Mechanics suggestions to terminal**
+**T013 · Re-verify taxonomy tag mappings against real cards using Scryfall's tag hierarchy** (inserted ahead of "Print Mechanics suggestions," now T014, so its output reflects the corrected mapping)
 
 ## Commands
 
