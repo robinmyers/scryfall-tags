@@ -1,5 +1,7 @@
+import pytest
+
 from main import main
-from scryfall import Card
+from scryfall import Card, CardNotFoundError
 
 
 def test_main_runs(monkeypatch, capsys):
@@ -17,6 +19,20 @@ def test_main_runs(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "Lightning Bolt" in captured.out
     assert "burn-any" in captured.out
+
+
+def test_main_not_found(monkeypatch, capsys):
+    def raise_not_found(name):
+        raise CardNotFoundError(f"No card found matching {name!r}")
+
+    monkeypatch.setattr("main.fetch_card", raise_not_found)
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(["Not A Real Card Xyz123"])
+
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "No card found matching" in captured.err
 
 
 def test_dependencies_importable():

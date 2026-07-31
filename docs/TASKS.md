@@ -26,7 +26,7 @@ Goal: Given a single card identifier, reliably fetch its Scryfall data. Depends 
 - [x] T009 · Scryfall client: fetch card by identifier (oracle text, type line, oracle tags) — M *(bigger than typical M: discovered oracle tags aren't on the card object at all — required downloading/caching the ~18MB "Oracle Tags" bulk-data file and building an oracle_id→tags index; see DESIGN.md Decision Log. Retry/backoff pattern reimplemented in `scryfall.py`, same shape as `verify_oracle_tags.py`'s. CardNotFoundError is raised but intentionally left uncaught — that's T010's job.)*
   - Acceptance criteria: reuses the retry/backoff-with-jitter pattern already built in `verify_oracle_tags.py` for rate limits
   - Validation note: manual smoke test against a real card identifier (network call to api.scryfall.com — not automatable in CI) — verified against "Lightning Bolt": real oracle text, type line, and 5 real oracle tags all returned correctly; cache confirmed working (second run ~0.3s, no re-download)
-- [ ] T010 · Handle not-found / ambiguous card identifier — S · depends on T009
+- [x] T010 · Handle not-found / ambiguous card identifier — S · depends on T009 *(caught CardNotFoundError in main.py: clean "Error: ..." message to stderr, exit 1, no traceback. No "ambiguous" case exists by construction — exact-name lookup is deterministic (match or 404), never fuzzy, so there's nothing else to handle there.)*
   - Acceptance criteria: use Scryfall's exact-name lookup only; fail clearly with a readable error if the card isn't found — no silent fuzzy-match fallback
 
 ## Milestone 3: Rule/Tag Pass (Mechanics)
