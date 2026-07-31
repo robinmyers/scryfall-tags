@@ -33,7 +33,7 @@ Goal: Given a single card identifier, reliably fetch its Scryfall data. Depends 
 
 Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milestone 2.
 
-- [ ] T011 · Parse `mechanics-archetypes-taxonomy.md`'s mapping table into a tag→mechanic lookup — M
+- [x] T011 · Parse `mechanics-archetypes-taxonomy.md`'s mapping table into a tag→mechanic lookup — M *(also resolved Discard's tag along the way — confirmed live as `discard`, 571 cards, matching the opponent-facing definition; updated the taxonomy doc's Oracle Tag Mapping table, confirmed-tags list, and the old "open ambiguity" note. Parser gates on the Confidence column rather than prose-parsing, so `discard-outlet` mentioned inside Discard's old unconfirmed-row text never bled into the Discard mapping. `reanimate-<type>` family enumeration remains a deferred gap — could be resolved later by scanning the T009 oracle-tags cache for the `reanimate-*` prefix.)*
   - Acceptance criteria: output includes all currently-confirmed mappings (e.g. draw, cantrip, ramp) as a fixture/regression check against the current taxonomy doc
 - [ ] T012 · Match a card's oracle tags against the lookup → Mechanics suggestions + source tag(s) — S · depends on T009, T011
 - [ ] T013 · Print Mechanics suggestions to terminal — S · depends on T012

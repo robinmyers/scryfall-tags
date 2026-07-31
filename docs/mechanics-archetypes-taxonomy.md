@@ -96,11 +96,11 @@ Haste, Mayhem, and Connive are dropped — Haste duplicates Keyword Abilities wi
 
 ---
 
-## Scryfall Oracle Tag Mapping (draft — needs live verification)
+## Scryfall Oracle Tag Mapping
 
 Scryfall's Tagger project has thousands of oracle tags, some very granular (e.g. separate `cost-reducer-self`, `cost-reducer-sorcery`, `cost-reducer-vehicle` rather than one generic tag). This mapping is a starting point pulled from what's confirmed in Scryfall's own docs/search examples plus their kebab-case naming convention — not a verified live query, so treat unconfirmed rows as candidates to check, not facts.
 
-**Confirmed via live testing or direct experience** (not guessed): `draw`, `cantrip`, `impulsive-draw`, `removal`, `sweeper`, `mana-dork`, `ramp`, `counterspell`, `tutor`, `bounce`, `recursion`, `reanimate` (+ `reanimate-<type>` family), `loot`, `rummage`, `hand-disruption`, `card-advantage`, `discard-outlet`, `repeatable-token-generator`, `drain-life`, `hate-graveyard`, `sacrifice-outlet`, `mill-self`, `mill-opponent`, `pp-counters-matter`/`gains-pp-counters`/`gives-pp-counters`, `mana-fix`, `energy-generator`, `combat-trick`, `tax`, `protection`/`gives-protection`/`gives-hexproof`/`gives-indestructible`, `tapper`, `freeze-creature`, `unblockable`/`gives-unblockable`, `exchange-control`, `tutor-land`, `mm-counters-matter`/`gains-mm-counters`/`gives-mm-counters`, `cost-reducer-<type>` (pattern).
+**Confirmed via live testing or direct experience** (not guessed): `draw`, `cantrip`, `impulsive-draw`, `removal`, `sweeper`, `discard`, `mana-dork`, `ramp`, `counterspell`, `tutor`, `bounce`, `recursion`, `reanimate` (+ `reanimate-<type>` family), `loot`, `rummage`, `hand-disruption`, `card-advantage`, `discard-outlet`, `repeatable-token-generator`, `drain-life`, `hate-graveyard`, `sacrifice-outlet`, `mill-self`, `mill-opponent`, `pp-counters-matter`/`gains-pp-counters`/`gives-pp-counters`, `mana-fix`, `energy-generator`, `combat-trick`, `tax`, `protection`/`gives-protection`/`gives-hexproof`/`gives-indestructible`, `tapper`, `freeze-creature`, `unblockable`/`gives-unblockable`, `exchange-control`, `tutor-land`, `mm-counters-matter`/`gains-mm-counters`/`gives-mm-counters`, `cost-reducer-<type>` (pattern).
 
 One thing still worth a spot-check as more cards get added:
 - **Landcycling's tag (`tutor-land`) reads broader than the keyword** and no more precise match turned up after spot-checking. Going with it for now — likely tags any land-tutor effect, not just Landcycling specifically, so keep an eye out for overtagging as the mapping gets used.
@@ -109,7 +109,7 @@ All Mechanics entries now have a confirmed or experience-based tag mapping — n
 
 Several earlier guesses were confirmed wrong and corrected: `card-draw` -> `draw`; `board-wipe`/`boardwipe` -> `sweeper`; `impulse-draw` -> `impulsive-draw`; `looting` -> `loot` only; `graveyard-hate` -> `hate-graveyard` (order flipped); `self-mill` -> `mill-self` (order flipped); `mill` -> `mill-opponent`; `mana-fixing` -> `mana-fix`; `energy` -> `energy-generator`; `tap-effect` -> `tapper`; `stun`/`counter-fuel-stun` -> `freeze-creature`; `exchange` -> `exchange-control`; `landcycling` -> `tutor-land`; `cost-increaser` dropped (not real).
 
-**Open ambiguity — Discard vs. Discard Outlet:** the real tag `discard-outlet` is defined by Scryfall as "ways to discard your own cards," which matches our **Discard Outlet** mechanic (self-discard for value), not our **Discard** mechanic (forcing an opponent to discard). Don't map `discard-outlet` to the Discard row — it belongs to Discard Outlet. Discard (opponent-facing) still needs its own confirmed tag.
+**Discard vs. Discard Outlet — resolved:** the tag `discard-outlet` is defined by Scryfall as "ways to discard your own cards," matching our **Discard Outlet** mechanic (self-discard for value), not our **Discard** mechanic (forcing an opponent to discard) — don't map `discard-outlet` to the Discard row. Discard's own tag is `discard`, confirmed via live query (`otag:discard`, 571 cards; sample matches the opponent-facing discard definition exactly).
 
 **Tokens has no single matching tag.** `repeatable-token-generator` is the most important one, but it won't catch every token maker (one-shot generators, token-doublers, etc.) — plan on unioning a few tags plus falling back to oracle-text pattern matching for this one specifically, rather than expecting a clean 1:1 tag match.
 
@@ -120,7 +120,7 @@ Several earlier guesses were confirmed wrong and corrected: `card-draw` -> `draw
 | Impulsive Draw | `impulsive-draw` | Confirmed | — |
 | Removal | `removal`, `creature-removal` | Confirmed | May need to union sub-tags (artifact/enchantment/planeswalker removal) |
 | Sweeper | `sweeper` | Confirmed | — |
-| Discard | *(unconfirmed — do not use `discard-outlet`, see note above)* | Needs verification | — |
+| Discard | `discard` | Confirmed | Not `discard-outlet` — see note above, that's Discard Outlet |
 | Ramp | `ramp` | Confirmed | — |
 | Mana Dork | `mana-dork` | Confirmed | — |
 | Counter (counterspell) | `counterspell` | Confirmed | Scryfall disambiguates from +1/+1 counters this way — good, avoids collision |
