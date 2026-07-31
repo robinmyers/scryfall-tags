@@ -68,6 +68,7 @@ Goal: Record every run for pattern review across cards. Depends on Milestone 3 a
   - Validation note: run twice, confirm the log appends rather than overwrites
 - [ ] T020 · End-to-end manual verification across a sample of cards — S · depends on all prior tasks
   - Acceptance criteria: maps directly to PRD Success Criteria — suggestions compared against hand-tagging across a meaningful sample; misses traced to fixable causes (tag mapping gap, prompt issue) where possible
+  - When writing the PRD/DESIGN follow-up this task feeds into, check DESIGN.md's "Follow-up Notes for Production Integration" section for recommendations collected during the spike (currently: extracting the taxonomy mapping out of markdown into a dedicated config format)
 
 ## Deferred
 
