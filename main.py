@@ -3,10 +3,16 @@ import sys
 
 import requests
 
+from archetype import build_archetype_prompt
 from edhrec import EdhrecNotFoundError, fetch_edhrec_signal
 from mechanics import match_mechanics
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
-from taxonomy import parse_tag_mechanic_lookup
+from taxonomy import (
+    parse_archetypes,
+    parse_mechanic_confidence,
+    parse_mechanic_linked_archetypes,
+    parse_tag_mechanic_lookup,
+)
 
 # EDHREC returns 16 cardlists per card, several capped at 50 cards (e.g. Creatures,
 # Lands) that are useful as full data but too noisy to print for manual verification.
@@ -69,6 +75,20 @@ def main(argv: list[str] | None = None) -> None:
                 print(f"  {cardlist.header}: {', '.join(cardlist.card_names)}")
         else:
             print("  (none)")
+
+    mechanic_confidence = parse_mechanic_confidence()
+    archetypes = parse_archetypes()
+    linked_archetypes = parse_mechanic_linked_archetypes()
+    prompt = build_archetype_prompt(
+        card,
+        mechanics,
+        mechanic_confidence,
+        edhrec_signal,
+        archetypes,
+        linked_archetypes,
+    )
+    print("Archetype classification prompt:")
+    print(prompt)
 
 
 if __name__ == "__main__":
