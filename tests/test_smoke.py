@@ -4,6 +4,7 @@ import requests
 from edhrec import EdhrecNotFoundError, EdhrecSignal
 from main import main
 from scryfall import Card, CardNotFoundError
+from taxonomy import Archetype
 
 FAKE_EDHREC_SIGNAL = EdhrecSignal(similar_cards=["Shock"], cardlists=[])
 
@@ -156,6 +157,45 @@ def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
     assert "Burn: burn-any" in captured.out
     assert "EDHREC: (skipped)" in captured.out
     assert "EDHREC: unavailable" in captured.err
+
+
+def test_main_prints_archetype_prompt(monkeypatch, capsys):
+    fake_card = Card(
+        name="Lightning Bolt",
+        oracle_id="4457ed35-7c10-48c8-9776-456485fdf070",
+        type_line="Instant",
+        oracle_text="Lightning Bolt deals 3 damage to any target.",
+        oracle_tags=["burn-any"],
+    )
+    monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
+    monkeypatch.setattr("main.parse_tag_mechanic_lookup", lambda: {"burn-any": "Burn"})
+    monkeypatch.setattr("main.load_tag_ancestors", dict)
+    monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
+    monkeypatch.setattr("main.parse_mechanic_confidence", lambda: {"Burn": "Confirmed"})
+    monkeypatch.setattr(
+        "main.parse_archetypes",
+        lambda: [
+            Archetype(
+                name="Burn",
+                type="Mechanic-Anchored",
+                definition="Deals direct damage",
+                qualifying_signals="Cards tagged Mechanic:Burn",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        "main.parse_mechanic_linked_archetypes", lambda: {"Burn": "Burn"}
+    )
+
+    main(["Lightning Bolt"])
+
+    captured = capsys.readouterr()
+    assert "Archetype classification prompt:" in captured.out
+    assert "## Oracle Text" in captured.out
+    assert "## Mechanic Tags & Confidence" in captured.out
+    assert "## EDHREC Signal" in captured.out
+    assert "## Candidate Archetypes" in captured.out
+    assert "## Mechanic-Archetype Heuristics" in captured.out
 
 
 def test_main_not_found(monkeypatch, capsys):

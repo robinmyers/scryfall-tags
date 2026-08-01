@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T015 · EDHREC client: fetch theme/synergy data for a card** (Milestone 3 complete; first task of Milestone 4)
+**T018 · Call the LLM and parse the response into suggested Archetypes** (Milestone 4 complete; second task of Milestone 5)
 
 ## Commands
 
@@ -25,7 +25,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — twenty-three smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic table is regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases; EDHREC slug formatting and response parsing unit-tested against fixtures; EDHREC not-found and network-error failures are mocked to confirm the run degrades gracefully rather than crashing — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — thirty-eight smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic, Archetypes, Linked Archetype, and Confidence tables are regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases; EDHREC slug formatting and response parsing unit-tested against fixtures; EDHREC not-found and network-error failures are mocked to confirm the run degrades gracefully rather than crashing; archetype-prompt assembly is unit-tested for section order/content against fixtures plus one real-taxonomy integration case — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 
