@@ -29,7 +29,7 @@ Goal: Given a single card identifier, reliably fetch its Scryfall data. Depends 
 - [x] T010 · Handle not-found / ambiguous card identifier — S · depends on T009 *(caught CardNotFoundError in main.py: clean "Error: ..." message to stderr, exit 1, no traceback. No "ambiguous" case exists by construction — exact-name lookup is deterministic (match or 404), never fuzzy, so there's nothing else to handle there.)*
   - Acceptance criteria: use Scryfall's exact-name lookup only; fail clearly with a readable error if the card isn't found — no silent fuzzy-match fallback
 
-## Milestone 3: Rule/Tag Pass (Mechanics)
+## Milestone 3: Rule/Tag Pass (Mechanics) — COMPLETE
 
 Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milestone 2.
 
@@ -40,7 +40,7 @@ Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milest
   - Confirmed via the cached Oracle Tags bulk file: `land-ramp` is a direct child of `ramp`; `spot-removal` a direct child of `removal`; `pure-draw` a direct child of `draw`; `burn-any` a two-level descendant of `burn` (via `burn-player`/`burn-battle`/etc.); and `reanimate`'s children include the entire `reanimate-<type>` family T011 flagged as a deferred gap. One mechanism (hierarchy-aware matching — expand each mechanic's confirmed tag(s) to include all transitive descendants via `parent_ids`/`child_ids`) resolves all of these at once, rather than hand-enumerating every specific subtag.
   - Acceptance criteria: `mechanics.py`/`taxonomy.py` matching accounts for the tag hierarchy, not just exact-slug matches; re-verify each Mechanic's currently-listed tag(s) against real exemplar cards (hierarchy-aware) and flag any mechanic that still doesn't resolve correctly even accounting for hierarchy
   - Validation note: manual verification against a meaningful sample of real cards per mechanic (network calls, not automatable in CI) — same style as T009's validation note
-- [ ] T014 · Print Mechanics suggestions to terminal — S · depends on T012, T013
+- [x] T014 · Print Mechanics suggestions to terminal — S · depends on T012, T013 *(main.py prints a sorted "Mechanics:" section with each mechanic's sorted source tag(s); "(none)" when nothing matches. Verified live: Lightning Bolt → Burn/Removal as expected from T013; Island → (none). Closes out Milestone 3.)*
 
 ## Milestone 4: EDHREC Weak Signal
 

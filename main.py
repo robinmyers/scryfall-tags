@@ -1,7 +1,9 @@
 import argparse
 import sys
 
-from scryfall import CardNotFoundError, fetch_card
+from mechanics import match_mechanics
+from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
+from taxonomy import parse_tag_mechanic_lookup
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -21,6 +23,17 @@ def main(argv: list[str] | None = None) -> None:
     print(card.oracle_text)
     tags = ", ".join(card.oracle_tags) if card.oracle_tags else "(none)"
     print(f"Oracle tags: {tags}")
+
+    tag_lookup = parse_tag_mechanic_lookup()
+    tag_ancestors = load_tag_ancestors()
+    mechanics = match_mechanics(card.oracle_tags, tag_lookup, tag_ancestors)
+
+    print("Mechanics:")
+    if mechanics:
+        for mechanic, source_tags in sorted(mechanics.items()):
+            print(f"  {mechanic}: {', '.join(sorted(source_tags))}")
+    else:
+        print("  (none)")
 
 
 if __name__ == "__main__":
