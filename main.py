@@ -1,9 +1,15 @@
 import argparse
 import sys
 
+from edhrec import fetch_edhrec_signal
 from mechanics import match_mechanics
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
 from taxonomy import parse_tag_mechanic_lookup
+
+# EDHREC returns 16 cardlists per card, several capped at 50 cards (e.g. Creatures,
+# Lands) that are useful as full data but too noisy to print for manual verification.
+# Only these carry a meaningful synergy signal worth showing in the terminal.
+EDHREC_PRINT_TAGS = {"topcommanders", "topcards", "gamechangers"}
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -32,6 +38,25 @@ def main(argv: list[str] | None = None) -> None:
     if mechanics:
         for mechanic, source_tags in sorted(mechanics.items()):
             print(f"  {mechanic}: {', '.join(sorted(source_tags))}")
+    else:
+        print("  (none)")
+
+    edhrec_signal = fetch_edhrec_signal(card.name)
+    similar = (
+        ", ".join(edhrec_signal.similar_cards)
+        if edhrec_signal.similar_cards
+        else "(none)"
+    )
+    print(f"EDHREC similar cards: {similar}")
+    print("EDHREC synergy card lists:")
+    shown_cardlists = [
+        cardlist
+        for cardlist in edhrec_signal.cardlists
+        if cardlist.tag in EDHREC_PRINT_TAGS
+    ]
+    if shown_cardlists:
+        for cardlist in shown_cardlists:
+            print(f"  {cardlist.header}: {', '.join(cardlist.card_names)}")
     else:
         print("  (none)")
 

@@ -25,7 +25,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — fifteen smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic table is regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — twenty-one smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic table is regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases; EDHREC slug formatting and response parsing unit-tested against fixtures — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 
