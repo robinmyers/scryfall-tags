@@ -41,6 +41,12 @@ Scryfall's `/cards/named` endpoint (used to fetch oracle text/type line) does no
 
 Decision: download and cache that file locally (`.cache/oracle-tags.jsonl`, gitignored, refreshed if older than 24h), and build an in-memory `oracle_id → [tag slugs]` index from it at lookup time. Rejected alternative: querying `otag:<slug> oracleid:<id>` once per known candidate tag (~40-50 tags from the taxonomy doc) — this would mean dozens of sequential rate-limited API calls per single card lookup, working against the "fast enough for interactive one-at-a-time review" requirement, and still wouldn't surface tags outside the known candidate list.
 
+### EDHREC access: direct `json.edhrec.com` calls, not `pyedhrec`/`mightstone`
+
+DESIGN.md left the EDHREC access method open. Evaluated all three options live: `pyedhrec` is a thin, effectively unmaintained wrapper (5 commits, last activity 2024) whose `get_card_details()` hits a different, smaller endpoint than the one carrying synergy data — using it correctly would mean bypassing its API and calling `requests` directly anyway. `mightstone` is async-first, alpha-quality, and pulls in Pydantic/Beanie (with optional MongoDB persistence) — too heavy for a single synchronous best-effort fetch.
+
+Decision: `edhrec.py` calls `https://json.edhrec.com/pages/cards/{slug}.json` directly via `requests`, mirroring `scryfall.py`'s style (including its own reimplementation of the retry/backoff-with-jitter helper, rather than sharing one — matching the precedent `scryfall.py` itself set against `verify_oracle_tags.py`). Slug format: lowercase, spaces→hyphens, apostrophes/commas stripped. One quirk worth flagging: EDHREC's JSON is served as static pre-rendered files behind CloudFront, so a card with no EDHREC page returns **HTTP 403** ("AccessDenied"), not 404 — `edhrec.py` treats 403 (and 404) as not-found.
+
 ## Follow-up Notes for Production Integration
 
 Recommendations to carry into the PRD/DESIGN update that proposes how this pipeline integrates into Cube Workshop's card-add workflow (see PRD Success Criteria) — collected here as they come up during the spike, rather than acted on now.

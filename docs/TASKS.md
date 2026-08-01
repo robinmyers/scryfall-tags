@@ -46,7 +46,7 @@ Goal: Produce Mechanics suggestions from a card's oracle tags. Depends on Milest
 
 Goal: Add EDHREC theme/synergy data as a best-effort weak signal. Depends on Milestone 3.
 
-- [ ] T015 · EDHREC client: fetch theme/synergy data for a card — M
+- [x] T015 · EDHREC client: fetch theme/synergy data for a card — M *(`edhrec.py`, calls `https://json.edhrec.com/pages/cards/{slug}.json` directly via `requests` — chose this over `pyedhrec`/`mightstone`; see DESIGN.md Decision Log for why. Wired straight into `main.py` after the Mechanics print block, same pattern T009 used for Scryfall: `EdhrecNotFoundError` raised uncaught for now — T016's job. Manual smoke test against Lightning Bolt confirmed real similar-cards and synergy-cardlist data print correctly; also confirmed `EdhrecNotFoundError` raises for a nonexistent card name.)*
   - Acceptance criteria: DESIGN.md leaves the approach open (`pyedhrec`, `mightstone`, or direct `json.edhrec.com` calls) — record which was chosen and why
 - [ ] T016 · Graceful degradation on EDHREC failure — S · depends on T015
   - Acceptance criteria: on failure, skip the weak-signal input and proceed with Mechanics + oracle text only, rather than failing the whole run

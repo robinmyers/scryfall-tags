@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+from edhrec import fetch_edhrec_signal
 from mechanics import match_mechanics
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
 from taxonomy import parse_tag_mechanic_lookup
@@ -32,6 +33,20 @@ def main(argv: list[str] | None = None) -> None:
     if mechanics:
         for mechanic, source_tags in sorted(mechanics.items()):
             print(f"  {mechanic}: {', '.join(sorted(source_tags))}")
+    else:
+        print("  (none)")
+
+    edhrec_signal = fetch_edhrec_signal(card.name)
+    similar = (
+        ", ".join(edhrec_signal.similar_cards)
+        if edhrec_signal.similar_cards
+        else "(none)"
+    )
+    print(f"EDHREC similar cards: {similar}")
+    print("EDHREC synergy card lists:")
+    if edhrec_signal.cardlists:
+        for cardlist in edhrec_signal.cardlists:
+            print(f"  {cardlist.header}: {', '.join(cardlist.card_names)}")
     else:
         print("  (none)")
 
