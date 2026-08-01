@@ -16,16 +16,16 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T013 · Re-verify taxonomy tag mappings against real cards using Scryfall's tag hierarchy** (inserted ahead of "Print Mechanics suggestions," now T014, so its output reflects the corrected mapping)
+**T014 · Print Mechanics suggestions to terminal**
 
 ## Commands
 
 - Install: `uv sync`
-- Run: `uv run python main.py "<card name>"` (e.g. `uv run python main.py "Lightning Bolt"`; entrypoint will evolve further as T013+ build out the pipeline). First run downloads/caches `.cache/oracle-tags.jsonl` (~18MB, refreshed every 24h)
+- Run: `uv run python main.py "<card name>"` (e.g. `uv run python main.py "Lightning Bolt"`; entrypoint will evolve further as T014+ build out the pipeline). First run downloads/caches `.cache/oracle-tags.jsonl` (~18MB, refreshed every 24h)
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — nine smoke/unit tests (entrypoint runs with a mocked Scryfall fetch; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index builder is unit-tested against a fixture; taxonomy doc's tag→mechanic table is regression-tested against the real doc; mechanics-matching logic unit-tested, including one test against the real taxonomy lookup — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — thirteen smoke/unit tests (entrypoint runs with a mocked Scryfall fetch; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic table is regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases — no test hits the live network); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 

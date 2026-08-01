@@ -112,11 +112,49 @@ def build_oracle_tag_index(
     return index
 
 
-def _load_oracle_tag_index() -> dict[str, list[str]]:
+def build_tag_ancestors(
+    tag_records: Iterable[dict[str, Any]],
+) -> dict[str, set[str]]:
+    """Build a tag slug -> set of all transitive ancestor slugs from Oracle Tags
+    bulk-data records, using each record's parent_ids. Handles tags with multiple
+    parent branches (e.g. reanimate-creature, whose parents span both the
+    reanimate and recursion branches)."""
+    records = list(tag_records)
+    slug_by_id = {r["id"]: r["slug"] for r in records}
+    parent_ids_by_id = {r["id"]: r.get("parent_ids", []) for r in records}
+
+    cache: dict[str, set[str]] = {}
+
+    def ancestors_of(tag_id: str) -> set[str]:
+        if tag_id in cache:
+            return cache[tag_id]
+        cache[tag_id] = set()  # seed before recursing, guards against cycles
+        result: set[str] = set()
+        for parent_id in parent_ids_by_id.get(tag_id, []):
+            parent_slug = slug_by_id.get(parent_id)
+            if parent_slug is None:
+                continue
+            result.add(parent_slug)
+            result |= ancestors_of(parent_id)
+        cache[tag_id] = result
+        return result
+
+    return {slug: ancestors_of(tag_id) for tag_id, slug in slug_by_id.items()}
+
+
+def _load_oracle_tag_records() -> list[dict[str, Any]]:
     _ensure_oracle_tag_cache()
     with ORACLE_TAG_CACHE_PATH.open(encoding="utf-8") as f:
-        records = [json.loads(line) for line in f]
-    return build_oracle_tag_index(records)
+        return [json.loads(line) for line in f]
+
+
+def _load_oracle_tag_index() -> dict[str, list[str]]:
+    return build_oracle_tag_index(_load_oracle_tag_records())
+
+
+def load_tag_ancestors() -> dict[str, set[str]]:
+    """Public: tag slug -> set of all ancestor tag slugs, for hierarchy-aware matching."""
+    return build_tag_ancestors(_load_oracle_tag_records())
 
 
 def _ensure_oracle_tag_cache() -> None:
