@@ -67,6 +67,7 @@ Haste, Mayhem, and Connive are dropped — Haste duplicates Keyword Abilities wi
 | Hand Disruption | Targeted discard/reveal-and-choose against opponents | "target opponent reveals their hand, you choose" | — |
 | Card Advantage | Net-positive card generation not captured above | 2-for-1 effects, value ETBs | — |
 | Drain | Paired life loss/gain | "loses X life and you gain X life" | — |
+| Life Loss | Forces life loss with no paired gain clause (kept distinct from Drain, which pairs loss with gain, and from Burn, which is damage-based) | "each opponent loses X life" with no accompanying "you gain life" | — |
 | Graveyard Hate | Disrupts opponents' graveyards | "exile target card from a graveyard" | — |
 | Sac Outlet | Lets you sacrifice your own permanents for value | "sacrifice a creature:" | Aristocrats |
 | Evasion | Creatures that are harder to block, via keywords (flying, menace, etc.) or other means | flying/menace/unblockable-style text, either keyword or functional | — |
@@ -109,6 +110,8 @@ All Mechanics entries now have a confirmed or experience-based tag mapping — n
 
 Several earlier guesses were confirmed wrong and corrected: `card-draw` -> `draw`; `board-wipe`/`boardwipe` -> `sweeper`; `impulse-draw` -> `impulsive-draw`; `looting` -> `loot` only; `graveyard-hate` -> `hate-graveyard` (order flipped); `self-mill` -> `mill-self` (order flipped); `mill` -> `mill-opponent`; `mana-fixing` -> `mana-fix`; `energy` -> `energy-generator`; `tap-effect` -> `tapper`; `stun`/`counter-fuel-stun` -> `freeze-creature`; `exchange` -> `exchange-control`; `landcycling` -> `tutor-land`; `cost-increaser` dropped (not real).
 
+**T021 findings (end-to-end verification against 32 real hand-tagged cube cards):** added a new **Life Loss** mechanic (`opponent-loses-life`) for pure life-loss effects with no paired gain clause — the existing Drain definition ("loses X life and you gain X life") doesn't cover these, and they were showing up hand-tagged as Drain against the user's actual judgment (e.g. Marionette Apprentice's "each opponent loses 1 life" with no gain clause). Also added `mana-filter` to Fixing's candidate tags (Signets, filter lands — missed by `mana-fix` alone). See `docs/t021-verification-notes.md` for the full comparison and the rest of the findings, including patterns not resolved by a tag-mapping change (Strategy Shape archetypes under-recalled; payoff-only archetype membership like Atraxa, Grand Unifier's missed Reanimator/Sneak tags).
+
 **Discard vs. Discard Outlet — resolved:** the tag `discard-outlet` is defined by Scryfall as "ways to discard your own cards," matching our **Discard Outlet** mechanic (self-discard for value), not our **Discard** mechanic (forcing an opponent to discard) — don't map `discard-outlet` to the Discard row. Discard's own tag is `discard`, confirmed via live query (`otag:discard`, 571 cards; sample matches the opponent-facing discard definition exactly).
 
 **Tokens has no single matching tag.** `repeatable-token-generator` is the most important one, but it won't catch every token maker (one-shot generators, token-doublers, etc.) — plan on unioning a few tags plus falling back to oracle-text pattern matching for this one specifically, rather than expecting a clean 1:1 tag match.
@@ -134,13 +137,14 @@ Several earlier guesses were confirmed wrong and corrected: `card-draw` -> `draw
 | Hand Disruption | `hand-disruption` | Confirmed | — |
 | Card Advantage | `card-advantage` | Confirmed | — |
 | Drain | `drain-life` | Confirmed | — |
+| Life Loss | `opponent-loses-life` | Confirmed | 907 live cards; overlaps with `drain-life` on 281 of them (cards that are both paired-drain and incidentally match this broader tag) — accepted as informative rather than suppressed, same precedent as Reanimate/Recursion's cross-mechanic overlap below |
 | Graveyard Hate | `hate-graveyard` | Confirmed | Order flipped from initial guess |
 | Sac Outlet | `sacrifice-outlet` | Confirmed | — |
 | Evasion | `evasion` | Confirmed | — |
 | Self-mill | `mill-self` | Confirmed | Order flipped from initial guess |
 | Mill | `mill-opponent` | Confirmed | — |
 | +1/+1 Counters | `pp-counters-matter`, `gains-pp-counters`, `gives-pp-counters` | Confirmed | 3 tags — `gives-pp-counters` is also used for Pump, see note below |
-| Fixing | `mana-fix` | Confirmed | — |
+| Fixing | `mana-fix`, `mana-filter` | Confirmed | 2 tags — `mana-filter` (Signets, filter lands) added during T021, only 6/132 overlap with `mana-fix` so mostly additive coverage |
 | Energy | `energy-generator` | Confirmed | — |
 | Burn | `burn` | Confirmed | — |
 | Graveyard Matters | `cards-in-graveyard-matter`, `card-types-in-graveyard-matter` | Confirmed | Replaces the narrower Delirium-specific tag guess — no dedicated Delirium tag exists; these catch Delirium/Threshold/Undergrowth-style effects broadly |

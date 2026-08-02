@@ -82,6 +82,16 @@ def _request_with_retry(
         return resp
 
 
+def _extract_oracle_text(data: dict[str, Any]) -> str:
+    """Return the card's oracle text. Double-faced cards have no top-level
+    oracle_text — Scryfall splits it across card_faces instead."""
+    oracle_text = data.get("oracle_text")
+    if oracle_text:
+        return oracle_text
+    faces = data.get("card_faces", [])
+    return "\n//\n".join(face.get("oracle_text", "") for face in faces)
+
+
 def fetch_card(name: str) -> Card:
     """Fetch a card's oracle text, type line, and oracle tags by exact name."""
     resp = _request_with_retry(SCRYFALL_NAMED, params={"exact": name})
@@ -95,7 +105,7 @@ def fetch_card(name: str) -> Card:
         name=data["name"],
         oracle_id=data["oracle_id"],
         type_line=data["type_line"],
-        oracle_text=data.get("oracle_text", ""),
+        oracle_text=_extract_oracle_text(data),
         oracle_tags=tag_index.get(data["oracle_id"], []),
     )
 

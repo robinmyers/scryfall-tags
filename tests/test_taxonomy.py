@@ -16,6 +16,8 @@ def test_parse_tag_mechanic_lookup():
     assert lookup["discard"] == "Discard"
     assert lookup["gains-pp-counters"] == "+1/+1 Counters"  # multi-tag mechanic
     assert lookup["repeatable-token-generator"] == "Tokens"  # "Confirmed (partial)"
+    assert lookup["opponent-loses-life"] == "Life Loss"  # added during T021
+    assert lookup["mana-filter"] == "Fixing"  # added during T021
 
     # discard-outlet must stay scoped to its own row, not bleed into Discard
     assert lookup["discard-outlet"] == "Discard Outlet"

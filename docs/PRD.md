@@ -40,3 +40,7 @@ The user runs the CLI script one card at a time (not in batch, since manual comp
 - Integration into the actual Cube Workshop app — that's an output of the spike (a proposed PRD/DESIGN update), not something built during it
 - Fully resolving all open tag ambiguities (e.g. Discard's still-unconfirmed tag, Tokens' text-fallback logic) before the spike starts — surfacing these gaps is part of the spike's purpose
 - Any accuracy/confidence scoring system beyond passing through what the rule pass and LLM already produce
+
+## Spike Conclusion
+
+All four Success Criteria met — see `docs/t021-verification-notes.md` for the full end-to-end verification (32 real hand-tagged cube cards: 84% mechanics recall, 76% archetype recall, every miss traced to a cause) and `docs/production-integration-proposal.md` for the resulting PRD/DESIGN addendum proposing integration into Cube Workshop's card-add workflow.
