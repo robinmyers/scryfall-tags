@@ -23,6 +23,7 @@ def test_main_runs(monkeypatch, capsys):
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -50,6 +51,7 @@ def test_main_prints_mechanics(monkeypatch, capsys):
     )
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -72,6 +74,7 @@ def test_main_prints_no_mechanics(monkeypatch, capsys):
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Vanilla Bear"])
 
@@ -92,6 +95,7 @@ def test_main_prints_edhrec_signal(monkeypatch, capsys):
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -123,6 +127,7 @@ def test_main_degrades_on_edhrec_not_found(monkeypatch, capsys):
 
     monkeypatch.setattr("main.fetch_edhrec_signal", raise_not_found)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -156,6 +161,7 @@ def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
 
     monkeypatch.setattr("main.fetch_edhrec_signal", raise_connection_error)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -203,6 +209,7 @@ def test_main_prints_archetype_suggestions(monkeypatch, capsys):
             ArchetypeSuggestion(archetype="Burn", reasoning="Deals direct damage.")
         ],
     )
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 
@@ -221,6 +228,7 @@ def test_main_prints_no_archetype_suggestions(monkeypatch, capsys):
     )
     _patch_common(monkeypatch, fake_card)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Vanilla Bear"])
 
@@ -242,6 +250,7 @@ def test_main_degrades_on_archetype_classification_error(monkeypatch, capsys):
         raise ArchetypeClassificationError("API error: overloaded")
 
     monkeypatch.setattr("main.classify_archetypes", raise_classification_error)
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
 
     main(["Lightning Bolt"])
 

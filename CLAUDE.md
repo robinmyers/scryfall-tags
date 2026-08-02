@@ -16,7 +16,7 @@ Always read relevant docs before starting work. If a task touches the data model
 ## Current Focus
 
 <!-- Update this before every session. -->
-**T020 · Append each run's inputs + suggestions to a local log file** (Milestone 5 complete; first task of Milestone 6)
+**T021 · End-to-end manual verification across a sample of cards** (second task of Milestone 6)
 
 ## Commands
 
@@ -25,7 +25,7 @@ Always read relevant docs before starting work. If a task touches the data model
 - Lint: `uv run ruff check .`
 - Format: `uv run ruff format .`
 - Type check: `uv run mypy .`
-- Test: `uv run pytest` — forty-six smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic, Archetypes, Linked Archetype, and Confidence tables are regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases; EDHREC slug formatting and response parsing unit-tested against fixtures; EDHREC not-found and network-error failures are mocked to confirm the run degrades gracefully rather than crashing; archetype-prompt assembly is unit-tested for section order/content against fixtures plus one real-taxonomy integration case; LLM archetype-classification is unit-tested against a mocked Anthropic client, covering success, empty-suggestions, refusal, truncation, and API-error cases; `main.py`'s terminal print of Archetype suggestions is unit-tested for the populated/empty/degraded cases, all with `classify_archetypes` mocked — no test hits the live network or Anthropic API); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
+- Test: `uv run pytest` — fifty-one smoke/unit tests (entrypoint runs with a mocked Scryfall fetch and prints its Mechanics suggestions; no-match case prints "(none)"; not-found card exits 1 with a clean message; core dependencies import cleanly; oracle-tag index and tag-ancestor builders are unit-tested against fixtures; taxonomy doc's tag→mechanic, Archetypes, Linked Archetype, and Confidence tables are regression-tested against the real doc; mechanics-matching logic unit-tested including hierarchy-aware cases; EDHREC slug formatting and response parsing unit-tested against fixtures; EDHREC not-found and network-error failures are mocked to confirm the run degrades gracefully rather than crashing; archetype-prompt assembly is unit-tested for section order/content against fixtures plus one real-taxonomy integration case; LLM archetype-classification is unit-tested against a mocked Anthropic client, covering success, empty-suggestions, refusal, truncation, and API-error cases; `main.py`'s terminal print of Archetype suggestions is unit-tested for the populated/empty/degraded cases; the JSONL run-log writer is unit-tested for its schema, its append-not-overwrite behavior, and the ok/skipped status distinction for both EDHREC and Archetypes — every `main.py` smoke test mocks `append_run` — no test hits the live network, the Anthropic API, or writes to the real `run_log.jsonl`); DESIGN.md's manual card-by-card verification remains the actual correctness check for Mechanics/Archetype suggestions, not this suite
 - Migrate: n/a — no database
 - No pre-commit hooks — DESIGN.md explicitly scopes this spike without them
 

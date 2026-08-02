@@ -14,3 +14,6 @@ wheels/
 
 # Local Scryfall bulk-data cache (oracle tags)
 .cache/
+
+# Personal run log (per-card inputs + suggestions, grows indefinitely)
+run_log.jsonl

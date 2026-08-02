@@ -7,6 +7,7 @@ from archetype import build_archetype_prompt
 from edhrec import EdhrecNotFoundError, fetch_edhrec_signal
 from llm import ArchetypeClassificationError, classify_archetypes
 from mechanics import match_mechanics
+from runlog import append_run
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
 from taxonomy import (
     parse_archetypes,
@@ -52,8 +53,13 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         edhrec_signal = fetch_edhrec_signal(card.name)
+        edhrec_error = None
     except (EdhrecNotFoundError, requests.RequestException) as exc:
-        print(f"EDHREC: unavailable ({exc}) — skipping weak signal", file=sys.stderr)
+        edhrec_error = str(exc)
+        print(
+            f"EDHREC: unavailable ({edhrec_error}) — skipping weak signal",
+            file=sys.stderr,
+        )
         edhrec_signal = None
 
     if edhrec_signal is None:
@@ -91,9 +97,11 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         suggestions = classify_archetypes(prompt, [a.name for a in archetypes])
+        archetype_error = None
     except ArchetypeClassificationError as exc:
+        archetype_error = str(exc)
         print(
-            f"Archetypes: unavailable ({exc}) — skipping LLM classification",
+            f"Archetypes: unavailable ({archetype_error}) — skipping LLM classification",
             file=sys.stderr,
         )
         suggestions = None
@@ -106,6 +114,16 @@ def main(argv: list[str] | None = None) -> None:
             print(f"  {suggestion.archetype}: {suggestion.reasoning}")
     else:
         print("  (none)")
+
+    append_run(
+        card_query=args.card,
+        card=card,
+        mechanics=mechanics,
+        edhrec_signal=edhrec_signal,
+        edhrec_error=edhrec_error,
+        archetype_suggestions=suggestions,
+        archetype_error=archetype_error,
+    )
 
 
 if __name__ == "__main__":
