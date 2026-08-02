@@ -1,4 +1,4 @@
-from scryfall import build_oracle_tag_index, build_tag_ancestors
+from scryfall import _extract_oracle_text, build_oracle_tag_index, build_tag_ancestors
 
 
 def test_build_oracle_tag_index():
@@ -40,3 +40,23 @@ def test_build_tag_ancestors():
     assert ancestors["burn"] == set()
     assert ancestors["burn-player"] == {"burn"}
     assert ancestors["burn-any"] == {"burn-player", "burn", "removal"}
+
+
+def test_extract_oracle_text_single_faced():
+    data = {"oracle_text": "Deals 3 damage to any target."}
+
+    assert _extract_oracle_text(data) == "Deals 3 damage to any target."
+
+
+def test_extract_oracle_text_double_faced():
+    # Double-faced cards have no top-level oracle_text — Scryfall splits it
+    # across card_faces instead (confirmed against the real API for
+    # Rona, Herald of Invasion // Rona, Tolarian Obliterator during T021).
+    data = {
+        "card_faces": [
+            {"name": "Front Face", "oracle_text": "Front face text."},
+            {"name": "Back Face", "oracle_text": "Back face text."},
+        ]
+    }
+
+    assert _extract_oracle_text(data) == "Front face text.\n//\nBack face text."

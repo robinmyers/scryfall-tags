@@ -1,0 +1,45 @@
+# Production Integration Proposal: Mechanics/Archetype Classification in Cube Workshop
+
+Addendum to `PRD.md` and `DESIGN.md`, concluding the Cube Classification Pipeline spike. Written after T021's end-to-end verification (`docs/t021-verification-notes.md`) — every recommendation below is grounded in that sample's actual results, not generic advice.
+
+## Spike verdict
+
+Against PRD Success Criteria:
+
+- **"Suggestions match hand-tagging often enough that confirming/correcting is faster than tagging from scratch"** — yes, on this sample. 84% mechanics recall, 76% archetype recall, and only 3 of 32 cards had zero suggestion overlap with the user's own hand-tags on either dimension. For the other 29, the tool gave a real starting point even where it wasn't a perfect match.
+- **"Misses traceable to fixable causes rather than fundamental flaws"** — yes. Every miss in the sample fell into one of: a tag-mapping gap (fixed during the spike), an already-known/scoped-out gap (Tokens' text-fallback), a real code bug (DFC oracle text — fixed), a systematic prompt gap with a clear fix direction (Strategy Shape archetypes, below), a structural limitation worth naming rather than hiding (payoff-only archetype membership), or hand-tagging looseness on the human side. Nothing suggested the overall approach (rule pass + LLM pass) is wrong.
+- **"Updated taxonomy/tag-mapping spec reflecting what was learned"** — done: added the `Life Loss` mechanic, added `mana-filter` to Fixing, confirmed Tokens' known gap in practice. See `mechanics-archetypes-taxonomy.md`'s T021 note.
+- **This document** is the fourth criterion.
+
+**Recommendation: proceed with integrating this pipeline into Cube Workshop's card-add workflow**, with the two priority fixes below folded in before or shortly after launch.
+
+## Priority fixes before/shortly after launch
+
+### 1. Feed card stats to the Archetype prompt (highest leverage finding)
+
+61% of the sample's archetype misses (11 of 18) were Strategy Shape archetypes (Control, Aggro, Combo, Midrange, Tempo). The taxonomy doc's own `Type` definition says these are "usually inferred from a card's overall stats/speed, not one signal" — but `archetype.build_archetype_prompt()` (T017) never surfaces mana value, power/toughness, or any curve-speed framing; it's built entirely from oracle text + mechanic tags + EDHREC + heuristics. None of those encode "this is a cheap efficient threat" or "this is a late-game payoff" directly, which is exactly what Strategy Shape classification needs.
+
+**Fix**: add mana value (and power/toughness for creatures) to the Oracle Text section of the prompt. This is a scoped, low-risk prompt change, not a model or architecture change — worth doing before wider rollout since it's the single largest fixable gap found.
+
+### 2. Extract the taxonomy mapping out of markdown
+
+Already flagged in `DESIGN.md`'s Follow-up Notes before this spike concluded, and T021 didn't change the recommendation — just adds urgency. `taxonomy.py` currently parses `mechanics-archetypes-taxonomy.md`'s tables via regex at call time. That's fine for a single-user CLI spike; it's a liability in a production request path (card-add is presumably a hot path, and regex-parsing a hand-edited markdown doc on every request — or even just at deploy time — is fragile in a way a structured config isn't). Extract into YAML/JSON/TOML before this becomes a permanent backend dependency, generating the human-readable doc from the config (or vice versa) rather than maintaining both by hand.
+
+## Known limitations to carry forward (not blocking, but real)
+
+- **Payoff-only archetype membership** (finding 6 in the verification notes): cards like Atraxa, Grand Unifier that qualify for an archetype purely as a payoff for what *other* cards do to them (big reanimation targets, Sneak-Attack payoffs) have no textual self-signal the LLM can key off. The taxonomy's own qualifying-signal language (e.g. Reanimator's "big graveyard targets") names this pattern, but the prompt doesn't operationalize "is this card plausibly a payoff, based on cost/stats?" as an explicit instruction. Worth a targeted prompt addition once the mana-value fix (above) is in, since the same new stat data would inform this too — but treat as a second pass, not launch-blocking.
+- **EDHREC weak signal's actual contribution is still unvalidated.** PRD flagged this as an explicit open assumption going in, and T021 didn't isolate it — the sample was run with EDHREC on throughout, no A/B comparison against EDHREC-off. Worth a follow-up experiment (re-run a subsample with EDHREC disabled, diff the suggestions) before assuming it's pulling its weight in production, rather than carrying the assumption forward untested a second time.
+- **Hand-tagging consistency**: several sample misses (finding 7) looked like the user's own hand-tags being looser than the taxonomy's stated definitions (e.g. "Draw" applied to reveal/impulse effects that aren't literally draw). Not a pipeline problem, but worth knowing that the "ground truth" being confirmed against in a production confirm/correct UI will itself have some looseness — the tool being technically more precise than a rushed hand-tag isn't necessarily a tool bug.
+
+## Proposed UX in Cube Workshop's card-add flow
+
+1. **Trigger**: when a user adds a card, run the existing pipeline (Scryfall fetch → Mechanics rule pass → EDHREC fetch → Archetype LLM pass) server-side, same sequence as the spike's CLI.
+2. **Present as suggestions, never auto-applied**: Mechanics and Archetype suggestions show as pre-selectable tags (e.g. checkboxes/chips) the user confirms or edits before the card is saved — never silently written. This matches the PRD's own framing (a "suggest-and-confirm pipeline") and the spike's own finding that suggestions are a strong starting point, not a finished answer.
+3. **Show source, not just the label**: the rule pass already carries its source oracle tag(s) per mechanic, and the LLM pass already returns a one-sentence reasoning per archetype (T018's schema) — surface both in the UI. It's what made this verification pass possible to do quickly, and it'll help users spot-check suggestions faster than a bare label would.
+4. **Latency**: the CLI's per-card turnaround (Scryfall + EDHREC + LLM, sequential) is fine for an interactive one-at-a-time review loop but should be profiled against Cube Workshop's actual add-a-card UX expectations — EDHREC and the LLM call don't depend on each other and could run in parallel rather than sequentially as the CLI does today.
+5. **Cost**: per-card LLM cost is a fraction of a cent (`claude-sonnet-5`, ~2K input tokens) — a non-issue at expected Cube Workshop usage volumes. Re-check if this pipeline is ever run in bulk (e.g. batch-tagging an imported list) rather than one-at-a-time — PRD's one-card-at-a-time non-goal was about spike scope, not a hard production constraint, but bulk usage would multiply this cost linearly and is worth sizing before enabling.
+6. **Run logging**: `runlog.py`'s JSONL log was built for the spike's own manual pattern review. Consider whether production wants an equivalent — not for cost/debugging necessarily, but because this exact "run the tool, compare to what a human would tag, spot patterns" loop is likely to recur (new sets release, taxonomy evolves) and structured logging is what made this T021 pass tractable to do quickly.
+
+## What this spike deliberately didn't resolve (still correctly out of scope)
+
+Per PRD Non-Goals, still true: Tokens' text-fallback logic (confirmed as a real, live gap in T021, not just theoretical), full resolution of every open tag ambiguity, and batch/bulk processing. None of these block the integration recommendation above — they're refinements to make once the pipeline is live and generating real confirm/correct data at Cube Workshop scale, the same way this spike's own findings came from running real cards through it.
