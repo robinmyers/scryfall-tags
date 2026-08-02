@@ -2,6 +2,7 @@ import pytest
 import requests
 
 from edhrec import EdhrecNotFoundError, EdhrecSignal
+from llm import ArchetypeClassificationError, ArchetypeSuggestion
 from main import main
 from scryfall import Card, CardNotFoundError
 from taxonomy import Archetype
@@ -21,6 +22,7 @@ def test_main_runs(monkeypatch, capsys):
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", dict)
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Lightning Bolt"])
 
@@ -47,6 +49,7 @@ def test_main_prints_mechanics(monkeypatch, capsys):
         lambda: {"burn-any": {"burn", "removal"}, "spot-removal": {"removal"}},
     )
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Lightning Bolt"])
 
@@ -68,6 +71,7 @@ def test_main_prints_no_mechanics(monkeypatch, capsys):
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", lambda: {"burn": "Burn"})
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Vanilla Bear"])
 
@@ -87,6 +91,7 @@ def test_main_prints_edhrec_signal(monkeypatch, capsys):
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", dict)
     monkeypatch.setattr("main.load_tag_ancestors", dict)
     monkeypatch.setattr("main.fetch_edhrec_signal", lambda name: FAKE_EDHREC_SIGNAL)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Lightning Bolt"])
 
@@ -117,6 +122,7 @@ def test_main_degrades_on_edhrec_not_found(monkeypatch, capsys):
         raise EdhrecNotFoundError(f"No EDHREC page found for {name!r}")
 
     monkeypatch.setattr("main.fetch_edhrec_signal", raise_not_found)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Lightning Bolt"])
 
@@ -149,6 +155,7 @@ def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
         raise requests.exceptions.ConnectionError("connection refused")
 
     monkeypatch.setattr("main.fetch_edhrec_signal", raise_connection_error)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
 
     main(["Lightning Bolt"])
 
@@ -159,14 +166,7 @@ def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
     assert "EDHREC: unavailable" in captured.err
 
 
-def test_main_prints_archetype_prompt(monkeypatch, capsys):
-    fake_card = Card(
-        name="Lightning Bolt",
-        oracle_id="4457ed35-7c10-48c8-9776-456485fdf070",
-        type_line="Instant",
-        oracle_text="Lightning Bolt deals 3 damage to any target.",
-        oracle_tags=["burn-any"],
-    )
+def _patch_common(monkeypatch, fake_card):
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", lambda: {"burn-any": "Burn"})
     monkeypatch.setattr("main.load_tag_ancestors", dict)
@@ -187,15 +187,69 @@ def test_main_prints_archetype_prompt(monkeypatch, capsys):
         "main.parse_mechanic_linked_archetypes", lambda: {"Burn": "Burn"}
     )
 
+
+def test_main_prints_archetype_suggestions(monkeypatch, capsys):
+    fake_card = Card(
+        name="Lightning Bolt",
+        oracle_id="4457ed35-7c10-48c8-9776-456485fdf070",
+        type_line="Instant",
+        oracle_text="Lightning Bolt deals 3 damage to any target.",
+        oracle_tags=["burn-any"],
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr(
+        "main.classify_archetypes",
+        lambda prompt, archetype_names: [
+            ArchetypeSuggestion(archetype="Burn", reasoning="Deals direct damage.")
+        ],
+    )
+
     main(["Lightning Bolt"])
 
     captured = capsys.readouterr()
-    assert "Archetype classification prompt:" in captured.out
-    assert "## Oracle Text" in captured.out
-    assert "## Mechanic Tags & Confidence" in captured.out
-    assert "## EDHREC Signal" in captured.out
-    assert "## Candidate Archetypes" in captured.out
-    assert "## Mechanic-Archetype Heuristics" in captured.out
+    assert "Archetypes:" in captured.out
+    assert "  Burn: Deals direct damage." in captured.out
+
+
+def test_main_prints_no_archetype_suggestions(monkeypatch, capsys):
+    fake_card = Card(
+        name="Vanilla Bear",
+        oracle_id="00000000-0000-0000-0000-000000000000",
+        type_line="Creature — Bear",
+        oracle_text="",
+        oracle_tags=[],
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+
+    main(["Vanilla Bear"])
+
+    captured = capsys.readouterr()
+    assert "Archetypes:\n  (none)" in captured.out
+
+
+def test_main_degrades_on_archetype_classification_error(monkeypatch, capsys):
+    fake_card = Card(
+        name="Lightning Bolt",
+        oracle_id="4457ed35-7c10-48c8-9776-456485fdf070",
+        type_line="Instant",
+        oracle_text="Lightning Bolt deals 3 damage to any target.",
+        oracle_tags=["burn-any"],
+    )
+    _patch_common(monkeypatch, fake_card)
+
+    def raise_classification_error(prompt, archetype_names):
+        raise ArchetypeClassificationError("API error: overloaded")
+
+    monkeypatch.setattr("main.classify_archetypes", raise_classification_error)
+
+    main(["Lightning Bolt"])
+
+    captured = capsys.readouterr()
+    assert "Mechanics:" in captured.out
+    assert "EDHREC similar cards:" in captured.out
+    assert "Archetypes:\n  (skipped)" in captured.out
+    assert "Archetypes: unavailable" in captured.err
 
 
 def test_main_not_found(monkeypatch, capsys):
