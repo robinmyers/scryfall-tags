@@ -5,6 +5,7 @@ import requests
 
 from archetype import build_archetype_prompt
 from edhrec import EdhrecNotFoundError, fetch_edhrec_signal
+from llm import ArchetypeClassificationError, classify_archetypes
 from mechanics import match_mechanics
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
 from taxonomy import (
@@ -87,8 +88,24 @@ def main(argv: list[str] | None = None) -> None:
         archetypes,
         linked_archetypes,
     )
-    print("Archetype classification prompt:")
-    print(prompt)
+
+    try:
+        suggestions = classify_archetypes(prompt, [a.name for a in archetypes])
+    except ArchetypeClassificationError as exc:
+        print(
+            f"Archetypes: unavailable ({exc}) — skipping LLM classification",
+            file=sys.stderr,
+        )
+        suggestions = None
+
+    print("Archetypes:")
+    if suggestions is None:
+        print("  (skipped)")
+    elif suggestions:
+        for suggestion in suggestions:
+            print(f"  {suggestion.archetype}: {suggestion.reasoning}")
+    else:
+        print("  (none)")
 
 
 if __name__ == "__main__":
