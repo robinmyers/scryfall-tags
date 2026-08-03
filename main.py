@@ -27,6 +27,12 @@ def main(argv: list[str] | None = None) -> None:
         description="Cube Classification Pipeline — fetch and classify a single Magic card."
     )
     parser.add_argument("card", help="Card name or identifier to look up")
+    parser.add_argument(
+        "--no-edhrec",
+        action="store_true",
+        help="Skip the EDHREC fetch and run the Archetype pass without the "
+        "weak signal (for ablation testing)",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -51,16 +57,20 @@ def main(argv: list[str] | None = None) -> None:
     else:
         print("  (none)")
 
-    try:
-        edhrec_signal = fetch_edhrec_signal(card.name)
-        edhrec_error = None
-    except (EdhrecNotFoundError, requests.RequestException) as exc:
-        edhrec_error = str(exc)
-        print(
-            f"EDHREC: unavailable ({edhrec_error}) — skipping weak signal",
-            file=sys.stderr,
-        )
+    if args.no_edhrec:
         edhrec_signal = None
+        edhrec_error = "disabled via --no-edhrec flag"
+    else:
+        try:
+            edhrec_signal = fetch_edhrec_signal(card.name)
+            edhrec_error = None
+        except (EdhrecNotFoundError, requests.RequestException) as exc:
+            edhrec_error = str(exc)
+            print(
+                f"EDHREC: unavailable ({edhrec_error}) — skipping weak signal",
+                file=sys.stderr,
+            )
+            edhrec_signal = None
 
     if edhrec_signal is None:
         print("EDHREC: (skipped)")

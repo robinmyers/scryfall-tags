@@ -138,6 +138,38 @@ def test_main_degrades_on_edhrec_not_found(monkeypatch, capsys):
     assert "EDHREC: unavailable" in captured.err
 
 
+def test_main_no_edhrec_flag_skips_fetch(monkeypatch, capsys):
+    fake_card = Card(
+        name="Lightning Bolt",
+        oracle_id="4457ed35-7c10-48c8-9776-456485fdf070",
+        type_line="Instant",
+        oracle_text="Lightning Bolt deals 3 damage to any target.",
+        oracle_tags=["burn-any", "spot-removal"],
+    )
+    monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
+    monkeypatch.setattr(
+        "main.parse_tag_mechanic_lookup",
+        lambda: {"burn": "Burn", "removal": "Removal"},
+    )
+    monkeypatch.setattr(
+        "main.load_tag_ancestors",
+        lambda: {"burn-any": {"burn", "removal"}, "spot-removal": {"removal"}},
+    )
+
+    def fail_if_called(name):
+        raise AssertionError("fetch_edhrec_signal should not be called with --no-edhrec")
+
+    monkeypatch.setattr("main.fetch_edhrec_signal", fail_if_called)
+    monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
+
+    main(["Lightning Bolt", "--no-edhrec"])
+
+    captured = capsys.readouterr()
+    assert "EDHREC: (skipped)" in captured.out
+    assert "EDHREC: unavailable" not in captured.err
+
+
 def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
     fake_card = Card(
         name="Lightning Bolt",
