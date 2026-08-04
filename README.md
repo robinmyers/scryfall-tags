@@ -22,7 +22,7 @@ uv run python main.py <card identifier>
 ## Commands
 
 - Install: `uv sync`
-- Run: `uv run python main.py`
+- Run: `uv run python main.py <card identifier>` (add `--no-edhrec` to run the Archetype pass without the EDHREC weak signal, e.g. for ablation testing)
 - Lint: `uv run ruff check .`
 - Type check: `uv run mypy .`
 - Test: none — manual card-by-card verification is the test method for this spike
