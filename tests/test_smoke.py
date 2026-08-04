@@ -297,6 +297,64 @@ def test_main_prints_no_archetype_suggestions(monkeypatch, capsys):
     assert "Archetypes:\n  (none)" in captured.out
 
 
+def test_main_merges_payoff_archetype_suggestions(monkeypatch, capsys):
+    fake_card = Card(
+        name="Big Beater",
+        oracle_id="00000000-0000-0000-0000-000000000001",
+        type_line="Creature — Giant",
+        oracle_text="",
+        oracle_tags=[],
+        mana_value=7.0,
+        power="7",
+        toughness="7",
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr(
+        "main.classify_archetypes",
+        lambda prompt, archetype_names: [
+            ArchetypeSuggestion(archetype="Burn", reasoning="Deals direct damage.")
+        ],
+    )
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
+
+    main(["Big Beater"])
+
+    captured = capsys.readouterr()
+    assert "  Burn: Deals direct damage." in captured.out
+    assert "  Reanimator:" in captured.out
+    assert "  Sneak:" in captured.out
+
+
+def test_main_payoff_merge_does_not_duplicate_llm_suggestion(monkeypatch, capsys):
+    fake_card = Card(
+        name="Big Beater",
+        oracle_id="00000000-0000-0000-0000-000000000001",
+        type_line="Creature — Giant",
+        oracle_text="",
+        oracle_tags=[],
+        mana_value=7.0,
+        power="7",
+        toughness="7",
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr(
+        "main.classify_archetypes",
+        lambda prompt, archetype_names: [
+            ArchetypeSuggestion(
+                archetype="Reanimator", reasoning="Already caught it via text."
+            )
+        ],
+    )
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
+
+    main(["Big Beater"])
+
+    captured = capsys.readouterr()
+    assert captured.out.count("Reanimator:") == 1
+    assert "  Reanimator: Already caught it via text." in captured.out
+    assert "  Sneak:" in captured.out
+
+
 def test_main_degrades_on_archetype_classification_error(monkeypatch, capsys):
     fake_card = Card(
         name="Lightning Bolt",
