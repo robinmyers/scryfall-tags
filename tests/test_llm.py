@@ -4,9 +4,19 @@ import anthropic
 import httpx
 import pytest
 
-from llm import ArchetypeClassificationError, ArchetypeSuggestion, classify_archetypes
+from llm import (
+    SYSTEM_PROMPT,
+    ArchetypeClassificationError,
+    ArchetypeSuggestion,
+    classify_archetypes,
+)
 
 ARCHETYPE_NAMES = ["Burn", "Aggro", "Control"]
+
+
+def test_system_prompt_covers_payoff_only_membership():
+    assert "Mechanic-Anchored and Synergy Package archetypes" in SYSTEM_PROMPT
+    assert "mana value and power/toughness" in SYSTEM_PROMPT
 
 
 class FakeMessages:

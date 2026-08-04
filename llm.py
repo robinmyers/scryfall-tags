@@ -30,7 +30,15 @@ SYSTEM_PROMPT = (
     "valid answer for a card that doesn't fit any of them, and more than "
     "one is fine too. Only choose archetypes from the candidate list; never "
     "invent one. For each suggested archetype, give a one-sentence "
-    "reasoning grounded in the provided context."
+    "reasoning grounded in the provided context. For Mechanic-Anchored and "
+    "Synergy Package archetypes, remember a card can qualify purely as a "
+    "payoff for what other cards do to it, even with no textual signal for "
+    "the archetype's own core mechanic — check the card's mana value and "
+    "power/toughness against that archetype's Qualifying Signals (e.g. a "
+    "high-cost, high-power/toughness creature is a plausible target for "
+    "Reanimator's 'big graveyard targets' or Sneak's cheat-into-play effects "
+    "even if its own text never mentions the graveyard or being put onto "
+    "the battlefield)."
 )
 
 
