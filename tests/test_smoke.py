@@ -157,7 +157,9 @@ def test_main_no_edhrec_flag_skips_fetch(monkeypatch, capsys):
     )
 
     def fail_if_called(name):
-        raise AssertionError("fetch_edhrec_signal should not be called with --no-edhrec")
+        raise AssertionError(
+            "fetch_edhrec_signal should not be called with --no-edhrec"
+        )
 
     monkeypatch.setattr("main.fetch_edhrec_signal", fail_if_called)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
