@@ -7,6 +7,7 @@ from archetype import build_archetype_prompt
 from edhrec import EdhrecNotFoundError, fetch_edhrec_signal
 from llm import ArchetypeClassificationError, classify_archetypes
 from mechanics import match_mechanics
+from payoff import match_payoff_archetypes
 from runlog import append_run
 from scryfall import CardNotFoundError, fetch_card, load_tag_ancestors
 from taxonomy import (
@@ -107,6 +108,12 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         suggestions = classify_archetypes(prompt, [a.name for a in archetypes])
+        already_suggested = {s.archetype for s in suggestions}
+        suggestions += [
+            s
+            for s in match_payoff_archetypes(card)
+            if s.archetype not in already_suggested
+        ]
         archetype_error = None
     except ArchetypeClassificationError as exc:
         archetype_error = str(exc)
