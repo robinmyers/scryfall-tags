@@ -1,4 +1,9 @@
-from scryfall import _extract_oracle_text, build_oracle_tag_index, build_tag_ancestors
+from scryfall import (
+    _extract_oracle_text,
+    _extract_power_toughness,
+    build_oracle_tag_index,
+    build_tag_ancestors,
+)
 
 
 def test_build_oracle_tag_index():
@@ -60,3 +65,30 @@ def test_extract_oracle_text_double_faced():
     }
 
     assert _extract_oracle_text(data) == "Front face text.\n//\nBack face text."
+
+
+def test_extract_power_toughness_creature():
+    data = {"power": "7", "toughness": "7"}
+
+    assert _extract_power_toughness(data) == ("7", "7")
+
+
+def test_extract_power_toughness_non_creature():
+    data = {"oracle_text": "Lightning Bolt deals 3 damage to any target."}
+
+    assert _extract_power_toughness(data) == (None, None)
+
+
+def test_extract_power_toughness_double_faced():
+    # Double-faced creatures have no top-level power/toughness when faces
+    # differ (confirmed against the real API for Rona, Herald of Invasion //
+    # Rona, Tolarian Obliterator: front face 1/3, back face 5/5) — falls
+    # back to the front face, same pattern as _extract_oracle_text.
+    data = {
+        "card_faces": [
+            {"name": "Front Face", "power": "1", "toughness": "3"},
+            {"name": "Back Face", "power": "5", "toughness": "5"},
+        ]
+    }
+
+    assert _extract_power_toughness(data) == ("1", "3")
