@@ -17,6 +17,9 @@ def test_main_runs(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any", "spot-removal"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", dict)
@@ -39,6 +42,9 @@ def test_main_prints_mechanics(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any", "spot-removal"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr(
@@ -68,6 +74,9 @@ def test_main_prints_no_mechanics(monkeypatch, capsys):
         type_line="Creature — Bear",
         oracle_text="",
         oracle_tags=["unrelated-tag"],
+        mana_value=2.0,
+        power="2",
+        toughness="2",
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", lambda: {"burn": "Burn"})
@@ -89,6 +98,9 @@ def test_main_prints_edhrec_signal(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=[],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr("main.parse_tag_mechanic_lookup", dict)
@@ -111,6 +123,9 @@ def test_main_degrades_on_edhrec_not_found(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any", "spot-removal"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr(
@@ -145,6 +160,9 @@ def test_main_no_edhrec_flag_skips_fetch(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any", "spot-removal"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr(
@@ -179,6 +197,9 @@ def test_main_degrades_on_edhrec_network_error(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any", "spot-removal"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     monkeypatch.setattr("main.fetch_card", lambda name: fake_card)
     monkeypatch.setattr(
@@ -235,6 +256,9 @@ def test_main_prints_archetype_suggestions(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     _patch_common(monkeypatch, fake_card)
     monkeypatch.setattr(
@@ -259,6 +283,9 @@ def test_main_prints_no_archetype_suggestions(monkeypatch, capsys):
         type_line="Creature — Bear",
         oracle_text="",
         oracle_tags=[],
+        mana_value=2.0,
+        power="2",
+        toughness="2",
     )
     _patch_common(monkeypatch, fake_card)
     monkeypatch.setattr("main.classify_archetypes", lambda prompt, archetype_names: [])
@@ -277,6 +304,9 @@ def test_main_degrades_on_archetype_classification_error(monkeypatch, capsys):
         type_line="Instant",
         oracle_text="Lightning Bolt deals 3 damage to any target.",
         oracle_tags=["burn-any"],
+        mana_value=1.0,
+        power=None,
+        toughness=None,
     )
     _patch_common(monkeypatch, fake_card)
 

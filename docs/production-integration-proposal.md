@@ -11,15 +11,15 @@ Against PRD Success Criteria:
 - **"Updated taxonomy/tag-mapping spec reflecting what was learned"** — done: added the `Life Loss` mechanic, added `mana-filter` to Fixing, confirmed Tokens' known gap in practice. See `mechanics-archetypes-taxonomy.md`'s T021 note.
 - **This document** is the fourth criterion.
 
-**Recommendation: proceed with integrating this pipeline into Cube Workshop's card-add workflow**, with the two priority fixes below folded in before or shortly after launch.
+**Recommendation: proceed with integrating this pipeline into Cube Workshop's card-add workflow.** Of the two priority fixes below, #2 (taxonomy extraction) still stands as-is; #1 (stats in the prompt) has since been implemented and measured — it didn't resolve the Strategy Shape gap as hoped, so treat that gap as still open rather than folded in.
 
 ## Priority fixes before/shortly after launch
 
-### 1. Feed card stats to the Archetype prompt (highest leverage finding)
+### 1. Feed card stats to the Archetype prompt — implemented, but didn't move the needle (see follow-up experiment)
 
-61% of the sample's archetype misses (11 of 18) were Strategy Shape archetypes (Control, Aggro, Combo, Midrange, Tempo). The taxonomy doc's own `Type` definition says these are "usually inferred from a card's overall stats/speed, not one signal" — but `archetype.build_archetype_prompt()` (T017) never surfaces mana value, power/toughness, or any curve-speed framing; it's built entirely from oracle text + mechanic tags + EDHREC + heuristics. None of those encode "this is a cheap efficient threat" or "this is a late-game payoff" directly, which is exactly what Strategy Shape classification needs.
+61% of the sample's archetype misses (11 of 18) were Strategy Shape archetypes (Control, Aggro, Combo, Midrange, Tempo). The taxonomy doc's own `Type` definition says these are "usually inferred from a card's overall stats/speed, not one signal" — but `archetype.build_archetype_prompt()` (T017) never surfaced mana value, power/toughness, or any curve-speed framing; it was built entirely from oracle text + mechanic tags + EDHREC + heuristics. None of those encode "this is a cheap efficient threat" or "this is a late-game payoff" directly, which is exactly what Strategy Shape classification needs.
 
-**Fix**: add mana value (and power/toughness for creatures) to the Oracle Text section of the prompt. This is a scoped, low-risk prompt change, not a model or architecture change — worth doing before wider rollout since it's the single largest fixable gap found.
+**Implemented and measured** (`docs/stats-prompt-experiment-notes.md`): added `mana_value`/`power`/`toughness` to `scryfall.Card` and a `Mana Value`/`Power/Toughness` line to the prompt's Oracle Text section, then re-ran the 32-card T021 sample and diffed against a frozen pre-fix baseline. Result: **Strategy Shape recall was flat (28/39 before and after)** — three Strategy Shape suggestions were gained but none matched a hand-tag — and **aggregate recall across all archetypes actually declined slightly (75% → 72%)**, losing two unrelated correct suggestions (Firebolt → Graveyard, Kavaron Harrier → Artifacts). Bare stats numbers alone, without an explicit instruction connecting them to the Strategy Shape definitions, weren't sufficient signal on their own. The fields themselves are cheap, low-risk infrastructure worth keeping; the open follow-up is pairing them with an explicit prompt instruction (e.g. in `llm.py`'s `SYSTEM_PROMPT`) telling the model to weigh mana value/power/toughness specifically for Strategy Shape judgments, and re-testing the same way — not launch-blocking, but this specific fix as originally scoped shouldn't be treated as already resolving the Strategy Shape gap.
 
 ### 2. Extract the taxonomy mapping out of markdown
 

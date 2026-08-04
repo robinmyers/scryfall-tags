@@ -16,7 +16,15 @@ SECTION_HEURISTICS = "## Mechanic-Archetype Heuristics"
 
 
 def _oracle_text_section(card: Card) -> str:
-    return f"{SECTION_ORACLE_TEXT}\n{card.name} — {card.type_line}\n{card.oracle_text}"
+    lines = [
+        SECTION_ORACLE_TEXT,
+        f"{card.name} — {card.type_line}",
+        f"Mana Value: {card.mana_value}",
+    ]
+    if card.power is not None:
+        lines.append(f"Power/Toughness: {card.power}/{card.toughness}")
+    lines.append(card.oracle_text)
+    return "\n".join(lines)
 
 
 def _mechanics_section(

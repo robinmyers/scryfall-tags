@@ -21,6 +21,20 @@ FAKE_CARD = Card(
     type_line="Instant",
     oracle_text="Lightning Bolt deals 3 damage to any target.",
     oracle_tags=["burn-any"],
+    mana_value=1.0,
+    power=None,
+    toughness=None,
+)
+
+FAKE_CREATURE = Card(
+    name="Grizzly Bears",
+    oracle_id="00000000-0000-0000-0000-000000000000",
+    type_line="Creature — Bear",
+    oracle_text="",
+    oracle_tags=[],
+    mana_value=2.0,
+    power="2",
+    toughness="2",
 )
 
 FAKE_ARCHETYPES = [
@@ -74,7 +88,21 @@ def test_oracle_text_section_contents():
     prompt = _build()
 
     assert "Lightning Bolt — Instant" in prompt
+    assert "Mana Value: 1.0" in prompt
     assert "Lightning Bolt deals 3 damage to any target." in prompt
+
+
+def test_oracle_text_section_omits_power_toughness_for_non_creature():
+    prompt = _build()
+
+    assert "Power/Toughness" not in prompt
+
+
+def test_oracle_text_section_shows_power_toughness_for_creature():
+    prompt = _build(card=FAKE_CREATURE)
+
+    assert "Mana Value: 2.0" in prompt
+    assert "Power/Toughness: 2/2" in prompt
 
 
 def test_mechanics_section_empty():

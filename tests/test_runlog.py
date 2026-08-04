@@ -11,6 +11,9 @@ FAKE_CARD = Card(
     type_line="Instant",
     oracle_text="Lightning Bolt deals 3 damage to any target.",
     oracle_tags=["burn-any", "spot-removal"],
+    mana_value=1.0,
+    power=None,
+    toughness=None,
 )
 
 
@@ -49,6 +52,9 @@ def test_append_run_writes_expected_fields(tmp_path):
     assert entry["type_line"] == "Instant"
     assert entry["oracle_text"] == "Lightning Bolt deals 3 damage to any target."
     assert entry["oracle_tags"] == ["burn-any", "spot-removal"]
+    assert entry["mana_value"] == 1.0
+    assert entry["power"] is None
+    assert entry["toughness"] is None
     assert entry["mechanics"] == {"Burn": ["burn-any"]}
     assert entry["edhrec"] == {
         "status": "ok",

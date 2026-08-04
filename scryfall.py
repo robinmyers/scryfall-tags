@@ -40,6 +40,9 @@ class Card:
     type_line: str
     oracle_text: str
     oracle_tags: list[str]
+    mana_value: float
+    power: str | None
+    toughness: str | None
 
 
 def _sleep_backoff(attempt: int) -> None:
@@ -92,8 +95,24 @@ def _extract_oracle_text(data: dict[str, Any]) -> str:
     return "\n//\n".join(face.get("oracle_text", "") for face in faces)
 
 
+def _extract_power_toughness(data: dict[str, Any]) -> tuple[str | None, str | None]:
+    """Return the card's (power, toughness). Non-creatures have neither.
+    Double-faced cards have no top-level power/toughness when faces differ —
+    Scryfall splits it across card_faces instead; falls back to the front
+    face, same pattern as _extract_oracle_text."""
+    power = data.get("power")
+    toughness = data.get("toughness")
+    if power is not None or toughness is not None:
+        return power, toughness
+    faces = data.get("card_faces", [])
+    if faces:
+        return faces[0].get("power"), faces[0].get("toughness")
+    return None, None
+
+
 def fetch_card(name: str) -> Card:
-    """Fetch a card's oracle text, type line, and oracle tags by exact name."""
+    """Fetch a card's oracle text, type line, oracle tags, mana value, and
+    power/toughness by exact name."""
     resp = _request_with_retry(SCRYFALL_NAMED, params={"exact": name})
     if resp.status_code == 404:
         raise CardNotFoundError(f"No card found matching {name!r}")
@@ -101,12 +120,16 @@ def fetch_card(name: str) -> Card:
     data = resp.json()
 
     tag_index = _load_oracle_tag_index()
+    power, toughness = _extract_power_toughness(data)
     return Card(
         name=data["name"],
         oracle_id=data["oracle_id"],
         type_line=data["type_line"],
         oracle_text=_extract_oracle_text(data),
         oracle_tags=tag_index.get(data["oracle_id"], []),
+        mana_value=data["cmc"],
+        power=power,
+        toughness=toughness,
     )
 
 
