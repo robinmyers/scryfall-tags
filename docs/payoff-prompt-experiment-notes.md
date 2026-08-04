@@ -1,5 +1,7 @@
 # Payoff-Only Archetype Membership Prompt Experiment — Notes
 
+**Outcome: reverted.** Per this doc's own recommendation below, `llm.py`'s `SYSTEM_PROMPT` instruction described here added noise without any offsetting benefit — it's no longer in the codebase. Kept as a historical record of what was tried and measured.
+
 Working notes for `production-integration-proposal.md`'s "Known limitations to carry forward" bullet on payoff-only archetype membership: cards like Atraxa, Grand Unifier that qualify for an archetype purely as a payoff for what *other* cards do to them (big reanimation targets, Sneak Attack payoffs), with zero textual self-signal. T021's finding 6 proposed the fix directly: "explicitly telling the LLM to consider whether a card is a plausible payoff... even without direct textual signal, keyed off high mana value / strong stats." Not a permanent doc — findings here get folded into `production-integration-proposal.md`.
 
 ## Method
