@@ -355,6 +355,77 @@ def test_main_payoff_merge_does_not_duplicate_llm_suggestion(monkeypatch, capsys
     assert "  Sneak:" in captured.out
 
 
+def test_main_merges_linked_archetype_suggestions(monkeypatch, capsys):
+    fake_card = Card(
+        name="Graveyard Trawler",
+        oracle_id="00000000-0000-0000-0000-000000000002",
+        type_line="Sorcery",
+        oracle_text="",
+        oracle_tags=["recursion"],
+        mana_value=2.0,
+        power=None,
+        toughness=None,
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr(
+        "main.parse_tag_mechanic_lookup", lambda: {"recursion": "Recursion"}
+    )
+    monkeypatch.setattr(
+        "main.parse_mechanic_confidence", lambda: {"Recursion": "Confirmed"}
+    )
+    monkeypatch.setattr(
+        "main.classify_archetypes",
+        lambda prompt, archetype_names: [
+            ArchetypeSuggestion(archetype="Burn", reasoning="Deals direct damage.")
+        ],
+    )
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
+
+    main(["Graveyard Trawler"])
+
+    captured = capsys.readouterr()
+    assert "  Burn: Deals direct damage." in captured.out
+    assert "  Graveyard:" in captured.out
+    assert "mechanic-archetype heuristic" in captured.out
+
+
+def test_main_linked_archetype_merge_does_not_duplicate_llm_suggestion(
+    monkeypatch, capsys
+):
+    fake_card = Card(
+        name="Graveyard Trawler",
+        oracle_id="00000000-0000-0000-0000-000000000002",
+        type_line="Sorcery",
+        oracle_text="",
+        oracle_tags=["recursion"],
+        mana_value=2.0,
+        power=None,
+        toughness=None,
+    )
+    _patch_common(monkeypatch, fake_card)
+    monkeypatch.setattr(
+        "main.parse_tag_mechanic_lookup", lambda: {"recursion": "Recursion"}
+    )
+    monkeypatch.setattr(
+        "main.parse_mechanic_confidence", lambda: {"Recursion": "Confirmed"}
+    )
+    monkeypatch.setattr(
+        "main.classify_archetypes",
+        lambda prompt, archetype_names: [
+            ArchetypeSuggestion(
+                archetype="Graveyard", reasoning="Already caught it via text."
+            )
+        ],
+    )
+    monkeypatch.setattr("main.append_run", lambda **kwargs: None)
+
+    main(["Graveyard Trawler"])
+
+    captured = capsys.readouterr()
+    assert captured.out.count("Graveyard:") == 1
+    assert "  Graveyard: Already caught it via text." in captured.out
+
+
 def test_main_degrades_on_archetype_classification_error(monkeypatch, capsys):
     fake_card = Card(
         name="Lightning Bolt",

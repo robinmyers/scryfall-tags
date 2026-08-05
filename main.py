@@ -5,6 +5,7 @@ import requests
 
 from archetype import build_archetype_prompt
 from edhrec import EdhrecNotFoundError, fetch_edhrec_signal
+from linked_archetypes import match_linked_archetypes
 from llm import ArchetypeClassificationError, classify_archetypes
 from mechanics import match_mechanics
 from payoff import match_payoff_archetypes
@@ -108,12 +109,12 @@ def main(argv: list[str] | None = None) -> None:
 
     try:
         suggestions = classify_archetypes(prompt, [a.name for a in archetypes])
+        rule_based = match_payoff_archetypes(card) + match_linked_archetypes(mechanics)
         already_suggested = {s.archetype for s in suggestions}
-        suggestions += [
-            s
-            for s in match_payoff_archetypes(card)
-            if s.archetype not in already_suggested
-        ]
+        for suggestion in rule_based:
+            if suggestion.archetype not in already_suggested:
+                suggestions.append(suggestion)
+                already_suggested.add(suggestion.archetype)
         archetype_error = None
     except ArchetypeClassificationError as exc:
         archetype_error = str(exc)
